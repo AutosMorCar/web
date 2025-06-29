@@ -8,7 +8,7 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 
 const fs = require('fs'); // Solo por si acaso
-const Coche = require('./models/Coche');
+const Coche = require('./models/coche');
 const { storage } = require('./cloudinary'); // ✅ Storage Cloudinary
 
 const upload = multer({ storage }); // ✅ Multer con Cloudinary

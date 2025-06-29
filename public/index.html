@@ -1,0 +1,612 @@
+<!-- 🔧 index.html COMPLETO con etiquetas rojas y extracción ampliada -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carmazon</title>
+  <style>
+    :root {
+      --rojo-carmazon: #790f0f;
+      --gris-footer: #1a1a1a;
+    }
+
+    body {
+  background: url("fondo-carmazon.jpg") no-repeat center center fixed;
+  background-size: cover;
+  background-color: #000; /* fallback por si no carga */
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+
+    header, footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      transition: transform 0.3s ease;
+    }
+
+    header {
+  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+  padding: 15px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 999;
+  transition: transform 0.3s ease;
+}
+
+footer {
+  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+  color: #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 20px;
+  height: 40px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+    }
+
+    nav button {
+  margin-left: 20px;
+  background: none;
+  border: none;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1.5;
+  display: inline;
+  vertical-align: baseline;
+}
+
+
+    .contenedor-principal {
+      display: flex;
+      padding: 120px 30px 80px 30px;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    aside {
+      width: 250px;
+      background-color: #111;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      position: sticky;
+      top: 80px;
+    }
+
+    aside label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    aside select,
+    aside input {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      background-color: #1c1c1c;
+      color: white;
+    }
+
+    aside button {
+      padding: 10px;
+      background-color: var(--rojo-carmazon);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    #resultados {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .coche {
+      display: flex;
+      flex-direction: column;
+      background-color: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .coche:hover {
+      transform: scale(1.01);
+    }
+
+    .coche img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .info {
+      flex-grow: 1;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .info h3 {
+      margin: 0 0 10px;
+    }
+
+    .info p {
+      margin: 4px 0;
+      font-size: 16px;
+      color: #ccc;
+    }
+
+    .info .precio {
+      color: #ccc;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .ver-detalles {
+      margin-top: 12px;
+      align-self: flex-start;
+      padding: 6px 14px;
+      background-color: var(--rojo-carmazon);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+
+    .etiqueta {
+      display: inline-block;
+      background-color: var(--rojo-carmazon);
+      color: white;
+      padding: 6px 12px;
+      margin: 5px 5px 0 0;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    #login-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #login-modal .modal-content {
+      position: relative;
+      background-color: #1a1a1a;
+      padding: 30px 20px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    #login-modal .modal-content input {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #2a2a2a;
+      color: white;
+    }
+
+    #login-modal .modal-content button {
+      background-color: var(--rojo-carmazon);
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #login-modal .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: #ff4444;
+      cursor: pointer;
+    }
+
+    footer a {
+      color: #fcd3d3;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    #contacto-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 1001;
+  justify-content: center;
+  align-items: center;
+}
+
+.contacto-modal {
+  background-color: #1a1a1a;
+  padding: 30px 20px;
+  border-radius: 12px;
+  width: 350px;
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: white;
+}
+
+.contacto-modal input,
+.contacto-modal textarea {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 15px;
+  color: white;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border 0.2s;
+  margin-bottom: 14px;
+}
+
+
+.contacto-modal button[type="submit"] {
+  background-color: var(--rojo-carmazon);
+  color: white;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.close-contacto {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 20px;
+  background: none;
+  border: none;
+  color: #ff4444;
+  cursor: pointer;
+}
+
+.barra-lateral {
+  position: sticky;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.btn-contacto-especial {
+  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+  transition: background 0.2s;
+}
+
+.btn-contacto-especial:hover {
+  background: linear-gradient(to right, #5c0b0b, #5c0b0b);
+}
+
+
+@media (max-width: 1024px) {
+    .contenedor-principal {
+      flex-direction: column;
+      padding: 120px 20px 80px 20px;
+    }
+
+    .barra-lateral {
+  width: 100%;
+  align-items: center;
+}
+
+.barra-lateral aside {
+  width: 90%;
+  max-width: 400px;
+}
+
+    aside {
+      width: 100%;
+      position: static;
+    }
+
+    .barra-lateral {
+      flex-direction: column;
+      position: static;
+    }
+
+    main {
+      width: 100%;
+    }
+
+    #resultados {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+
+  @media (max-width: 600px) {
+    header, footer {
+      padding: 10px 20px;
+    }
+
+    header a {
+      font-size: 22px !important;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    nav a, nav button {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    aside label,
+    aside select,
+    aside input,
+    aside button {
+      font-size: 14px;
+    }
+
+    .contacto-modal {
+      width: 90%;
+    }
+
+    .coche img {
+      height: auto;
+    }
+
+    .info p {
+      font-size: 14px;
+    }
+
+    .ver-detalles {
+      font-size: 14px;
+      padding: 6px 12px;
+    }
+  }
+
+  </style>
+</head>
+<body>
+
+<header id="main-header">
+  <a href="index.html" style="font-size: 36px; font-weight: bold; color: white; text-decoration: none;">MorCar</a>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <button id="login-btn" onclick="mostrarLogin()">Login</button>
+    <button id="logout-btn" onclick="cerrarSesion()" style="display:none;">Cerrar Sesión</button>
+  </nav>
+</header>
+
+<!-- Modal de login -->
+<div id="login-modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="ocultarLogin()">×</button>
+    <h2>Iniciar sesión</h2>
+    <input type="text" id="usuario" placeholder="Usuario" />
+    <input type="password" id="password" placeholder="Contraseña" />
+    <button onclick="loginAdmin()">Entrar</button>
+    <p id="login-error" style="color:red;"></p>
+  </div>
+</div>
+
+<div class="contenedor-principal">
+  <div class="barra-lateral">
+    <aside>
+      <h2>Filtros</h2>
+      <label for="filtro-estado">Estado</label>
+      <select id="filtro-estado">
+        <option value="">Todos</option>
+        <option value="Nuevo">Como Nuevo</option>
+        <option value="Usado">Usado</option>
+        <option value="Averiado">Averiado</option>
+      </select>
+
+      <label for="filtro-marca">Marca</label>
+      <select id="filtro-marca">
+        <option value="">Todas</option>
+      </select>
+
+      <label for="filtro-anio">Año mínimo</label>
+      <input type="number" id="filtro-anio" />
+
+      <button id="filtro-reset">Reset</button>
+    </aside>
+
+    <aside>
+      <button id="boton-flotante-contacto" class="btn-contacto-especial" onclick="mostrarFormularioContacto()">
+        ¿Buscas tu Coche?
+      </button>
+    </aside>
+  </div>
+
+  <main>
+
+    <div id="form-wrapper" style="display:none;">
+      <form id="form-coche" enctype="multipart/form-data" style="margin-bottom: 30px;">
+        <h2>Subir nuevo coche</h2>
+        <input type="text" name="marca" placeholder="Marca" required /><br><br>
+        <input type="text" name="modelo" placeholder="Modelo" required /><br><br>
+        <input type="number" name="precio" placeholder="Precio (€)" required /><br><br>
+        <input type="number" name="anio" placeholder="Año" required /><br><br>
+        <input type="number" name="km" placeholder="Kilómetros" required /><br><br>
+        <select name="estado" required>
+          <option value="">Selecciona estado</option>
+          <option value="Nuevo">Como Nuevo</option>
+          <option value="Usado">Usado</option>
+          <option value="Averiado">Averiado</option>
+        </select><br><br>
+        <textarea name="descripcion" id="descripcion" placeholder="Pega aquí la descripción completa..." rows="6" style="width:100%;"></textarea><br><br>
+        <button type="button" onclick="extraerCaracteristicas()">Detectar características</button><br><br>
+        <input type="text" name="caracteristicas" id="caracteristicas" placeholder="Ej: Aire acondicionado, Elevalunas..." style="width:100%;" /><br><br>
+        <input type="file" id="imagenes" multiple required /><br><br>
+        <div id="preview" style="display: flex; gap: 10px; flex-wrap: wrap;"></div><br>
+        <button type="submit">Subir coche</button>
+      </form>
+    </div>
+
+    <div id="resultados" class="coche-grid"></div>
+  </main>
+</div>
+
+
+<footer id="main-footer">
+  <span>&copy; 2025 MorCar. Todos los derechos reservados.</span>
+  <div>
+    <a href="#">Aviso legal</a> |
+    <a href="#">Política de privacidad</a> |
+    <a href="#">Cookies</a>
+  </div>
+</footer>
+
+<script>
+  let prevScrollpos = window.pageYOffset;
+  window.onscroll = function () {
+    const currentScrollPos = window.pageYOffset;
+    const header = document.getElementById("main-header");
+    const footer = document.getElementById("main-footer");
+    if (prevScrollpos > currentScrollPos) {
+      header.style.transform = "translateY(0)";
+      footer.style.transform = "translateY(0)";
+    } else {
+      header.style.transform = "translateY(-100%)";
+      footer.style.transform = "translateY(100%)";
+    }
+    prevScrollpos = currentScrollPos;
+  };
+
+  function extraerCaracteristicas() {
+    const descripcion = document.getElementById("descripcion").value.toLowerCase();
+    const lista = [
+      "xenon", "pantalla de navegador", "gps", "climatizador", "aire acondicionado",
+      "bluetooth", "usb", "camara trasera", "asientos calefactables", "asientos en piel",
+      "volante multifuncion", "cierre con mando", "llantas", "ordenador de abordo",
+      "techo solar", "dos llaves", "sensores de aparcamiento", "cambio automático",
+      "manual", "automático", "gasolina", "diésel", "navegador", "radio cd", "control de velocidad", "velocidad crucero"
+    ];
+
+    const encontradas = lista.filter(car => descripcion.includes(car));
+    document.getElementById("caracteristicas").value = [...new Set(encontradas)].join(", ");
+  }
+</script>
+
+<script>
+  function mostrarFormularioContacto() {
+    document.getElementById("contacto-overlay").style.display = "flex";
+  }
+
+  function ocultarFormularioContacto() {
+    document.getElementById("contacto-overlay").style.display = "none";
+  }
+
+  document.getElementById("form-contacto-header").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  try {
+    const res = await fetch("/api/buscocoche", {
+      method: "POST",
+      body: formData
+    });
+
+    if (res.ok) {
+      alert("✅ Tu solicitud ha sido enviada correctamente.");
+      form.reset();
+      ocultarFormularioContacto();
+    } else {
+      alert("❌ Hubo un error al enviar la solicitud.");
+    }
+  } catch (err) {
+    console.error("❌ Error de conexión:", err);
+    alert("❌ Error de conexión.");
+  }
+});
+
+</script>
+
+<div id="contacto-overlay">
+  <div class="contacto-modal">
+    <button class="close-contacto" onclick="ocultarFormularioContacto()">×</button>
+    <h2>Cuéntanos qué coche necesitas</h2>
+    <form id="form-contacto-header">
+      <input type="text" name="nombre" placeholder="Tu nombre" required />
+      <input type="email" name="email" placeholder="Tu email" required />
+      <input type="text" name="telefono" placeholder="Tu teléfono" />
+      <textarea name="mensaje" placeholder="Describe el coche que estás buscando..." rows="5" required></textarea>
+      <button type="submit">Enviar solicitud</button>
+    </form>
+  </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>

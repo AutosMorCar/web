@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MorCar Intro</title>
+  <link rel="stylesheet" href="intro.css" />
+</head>
+<body>
+  <iframe id="contenido" src="index.html" frameborder="0"></iframe>
+
+  <div class="intro-container">
+    <img src="izquierda.png" class="logo izquierda" alt="MorCar izquierda" />
+    <img src="derecha.png" class="logo derecha" alt="MorCar derecha" />
+  </div>
+
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.body.classList.add("animar");
+      }, 100);
+
+      setTimeout(() => {
+        document.getElementById("contenido").classList.add("visible");
+      }, 1200);
+
+      setTimeout(() => {
+        document.querySelector(".intro-container").style.display = "none";
+      }, 2000);
+    });
+  </script>
+</body>
+</html>

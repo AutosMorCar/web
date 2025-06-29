@@ -1,0 +1,80 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+  position: relative;
+}
+
+iframe#contenido {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  z-index: 0;
+}
+
+iframe#contenido.visible {
+  opacity: 1;
+}
+
+.intro-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1000px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.logo {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 500px;
+  transition: transform 4s ease;
+}
+
+.izquierda {
+  left: 0;
+}
+
+.derecha {
+  right: 0;
+}
+
+body.animar .izquierda {
+  transform: translate(-100vw, -50%);
+}
+
+body.animar .derecha {
+  transform: translate(100vw, -50%);
+}
+
+/* 🎯 ADAPTACIÓN RESPONSIVE SIN ROMPER PC */
+@media (max-width: 768px) {
+  .intro-container {
+    width: 90vw;
+  }
+
+  .logo {
+    width: 45vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .intro-container {
+    width: 90vw;
+  }
+
+  .logo {
+    width: 42vw;
+  }
+}

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ficha del Coche | Carmazon</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <style>
+    :root {
+      --rojo-carmazon: #790f0f;
+      --gris-footer: #1a1a1a;
+    }
+
+    body {
+  background: linear-gradient(to right, #111111, #2b1d1d, #790f0f);
+  background-attachment: fixed;
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+    header, footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      transition: transform 0.3s ease;
+    }
+
+    header {
+  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+  padding: 15px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 999;
+  transition: transform 0.3s ease;
+}
+
+footer {
+  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+  color: #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 6px 20px;
+  height: 40px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+    }
+
+    nav button {
+  margin-left: 20px;
+  background: none;
+  border: none;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1.5;
+  display: inline;
+  vertical-align: baseline;
+}
+
+
+    #login-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #login-modal .modal-content {
+      position: relative;
+      background-color: #1a1a1a;
+      padding: 30px 20px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    #login-modal .modal-content input {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #2a2a2a;
+      color: white;
+    }
+
+    #login-modal .modal-content button {
+      background-color: var(--rojo-carmazon);
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #login-modal .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: #ff4444;
+      cursor: pointer;
+    }
+
+    .contenedor {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      max-width: 1200px;
+      margin: auto;
+      padding: 120px 20px 80px;
+      gap: 30px;
+    }
+
+    .col-izquierda {
+      flex: 2;
+      max-width: 700px;
+    }
+
+    .col-derecha {
+      flex: 1;
+      background-color: #111;
+      border-radius: 10px;
+      padding: 25px;
+      height: fit-content;
+    }
+
+    .swiper-container {
+      width: 100%;
+      max-height: 500px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .swiper-slide img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+      border-radius: 10px;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+      color: white;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+    }
+
+    .swiper-button-prev {
+      left: 10px;
+    }
+
+    .swiper-button-next {
+      right: 10px;
+    }
+
+    .swiper-pagination {
+      bottom: 10px !important;
+    }
+
+    #info {
+      background-color: #111;
+      padding: 25px;
+      border-radius: 10px;
+    }
+
+    #info h2 {
+      margin-top: 0;
+    }
+
+    footer a {
+      color: #fcd3d3;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    #formulario-contacto {
+      display: none;
+      flex-direction: column;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    #formulario-contacto input,
+    #formulario-contacto textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      background-color: #222;
+      color: white;
+    }
+
+    #formulario-contacto button {
+      background-color: var(--rojo-carmazon);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 900px) {
+      .contenedor {
+        flex-direction: column;
+        padding: 120px 15px 80px;
+      }
+    }
+
+#logo-marca {
+  position: absolute;
+  bottom: 50px; /* puedes ajustar esto para bajarlo más o menos */
+  right: 1px;
+  z-index: 0;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#logo-marca img {
+  width: 1000px;
+  height: auto;
+  display: block;
+}
+
+
+#contacto-modal-coche {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+#contacto-modal-coche .contacto-modal {
+  background-color: #1a1a1a;
+  padding: 35px 30px;
+  border-radius: 16px;
+  width: 400px;
+  box-shadow: 0 0 35px rgba(255, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: relative;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+#contacto-modal-coche h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+#contacto-modal-coche input,
+#contacto-modal-coche textarea {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 15px;
+  color: white;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border 0.2s;
+  margin-bottom: 14px; /* 🔥 separación entre campos */
+}
+
+#contacto-modal-coche input:focus,
+#contacto-modal-coche textarea:focus {
+  outline: none;
+  border-color: var(--rojo-carmazon);
+}
+
+#contacto-modal-coche input::placeholder,
+#contacto-modal-coche textarea::placeholder {
+  color: #aaaaaa;
+}
+
+#contacto-modal-coche textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+#contacto-modal-coche button[type="submit"] {
+  background-color: var(--rojo-carmazon);
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+#contacto-modal-coche button[type="submit"]:hover {
+  background-color: #9e1b1b;
+}
+
+.close-contacto {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 20px;
+  background: none;
+  border: none;
+  color: #ff4c4c;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  #logo-marca {
+    display: none;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<header id="main-header">
+  <a href="index.html" style="font-size: 36px; font-weight: bold; color: white; text-decoration: none;">MorCar</a>
+  <nav>
+    <a href="index.html">Nuestros Coches</a>
+    <button id="login-btn" onclick="mostrarLogin()">Login</button>
+    <button id="logout-btn" onclick="cerrarSesion()" style="display:none;">Cerrar Sesión</button>
+  </nav>
+</header>
+
+<div id="login-modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="ocultarLogin()">×</button>
+    <h2>Iniciar sesión</h2>
+    <input type="text" id="usuario" placeholder="Usuario" />
+    <input type="password" id="password" placeholder="Contraseña" />
+    <button onclick="loginAdmin()">Entrar</button>
+    <p id="login-error" style="color:red;"></p>
+  </div>
+</div>
+
+<div class="contenedor">
+  <div class="col-izquierda">
+    <div class="swiper-container">
+      <div class="swiper-wrapper" id="imagenes"></div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+    <div id="info"></div>
+  </div>
+
+  <div class="col-derecha">
+    <h3>Contacto</h3>
+    <p><strong>Vendedor:</strong> MorCar</p>
+    <p><strong>Teléfono:</strong> +34 602 49 70 73</p>
+    <a href="https://wa.me/34602497073" target="_blank" style="display: inline-block; margin-top: 10px; padding: 12px 20px; background-color: green; border: none; color: white; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 16px; line-height: 1;">
+  Contactar por WhatsApp
+</a>
+
+<button onclick="mostrarModalCoche(document.title)" style="display: inline-block; margin-top: 10px; margin-left: 10px; padding: 12px 20px; background-color: var(--rojo-carmazon); color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; line-height: 1; cursor: pointer;">
+  Contáctanos
+</button>
+
+
+    <form id="formulario-contacto">
+      <input type="hidden" name="coche" id="coche-hidden" />
+      <input type="text" name="nombre" placeholder="Tu nombre" required />
+      <input type="email" name="email" placeholder="Tu email" required />
+      <input type="text" name="telefono" placeholder="Tu teléfono" required />
+      <textarea name="mensaje" placeholder="Escribe tu consulta..." rows="4" required></textarea>
+      <button type="submit">Enviar consulta</button>
+    </form>
+  </div>
+</div>
+
+
+<footer id="main-footer">
+  <span>&copy; 2025 MorCar. Todos los derechos reservados.</span>
+  <div>
+    <a href="#">Aviso legal</a> |
+    <a href="#">Política de privacidad</a> |
+    <a href="#">Cookies</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="script.js"></script>
+<script src="script-coche.js"></script>
+
+
+<div id="logo-marca">
+  <img src="logo-fondo.png" alt="Logo MorCar">
+</div>
+
+<div id="contacto-modal-coche">
+  <div class="contacto-modal">
+    <button class="close-contacto" onclick="ocultarModalCoche()">×</button>
+    <h2>Consulta sobre este coche</h2>
+    <form id="formulario-coche-modal">
+      <input type="hidden" name="coche" id="coche-modal-nombre">
+      <input type="text" name="nombre" placeholder="Tu nombre" required />
+      <input type="email" name="email" placeholder="Tu email" required />
+      <input type="text" name="telefono" placeholder="Tu teléfono" />
+      <textarea name="mensaje" placeholder="Escribe tu consulta..." rows="5" required></textarea>
+      <button type="submit">Enviar consulta</button>
+    </form>
+  </div>
+</div>
+
+
+</body>
+</html>

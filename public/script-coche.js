@@ -1,0 +1,155 @@
+document.addEventListener("DOMContentLoaded", async () => {
+  const idParam = new URLSearchParams(window.location.search).get("id");
+  const id = parseInt(idParam);
+
+  if (isNaN(id)) {
+    document.body.innerHTML = "<h2 style='text-align:center; color:red;'>❌ ID inválido</h2>";
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/coches");
+    const coches = await res.json();
+
+    if (!Array.isArray(coches) || !coches.length || !coches[id]) {
+      document.body.innerHTML = "<h2 style='text-align:center; color:red;'>❌ Coche no encontrado</h2>";
+      return;
+    }
+
+    const coche = coches[id];
+    document.title = `${coche.marca} ${coche.modelo} | Carmazon`;
+
+    const inputCoche = document.getElementById("coche-modal-nombre");
+    if (inputCoche) inputCoche.value = `${coche.marca} ${coche.modelo}`;
+
+    const info = document.getElementById("info");
+    info.innerHTML = `
+      <h2>${coche.marca} ${coche.modelo}</h2>
+      <p><strong>Precio:</strong> ${coche.precio?.toLocaleString?.() || "N/A"} €</p>
+      <p><strong>Año:</strong> ${coche.anio || "N/A"}</p>
+      <p><strong>Kilómetros:</strong> ${Number(coche.km)?.toLocaleString?.() || "N/A"} km</p>
+      <p><strong>Estado:</strong> ${coche.estado || "N/A"}</p>
+      ${
+        coche.caracteristicas
+          ? `<div style="margin-top:20px;"><br>${
+              (Array.isArray(coche.caracteristicas)
+                ? coche.caracteristicas
+                : coche.caracteristicas.split(","))
+                .map(car => car.trim())
+                .filter(Boolean)
+                .map(car => `<span style="display:inline-block; background:#790f0f; color:#fff; padding:5px 10px; margin:5px 5px 0 0; border-radius:5px; font-size:14px;">${car}</span>`)
+                .join("")
+            }</div>`
+          : ""
+      }
+    `;
+
+    const imagenes = document.getElementById("imagenes");
+    coche.imagenes.forEach(url => {
+      const slide = document.createElement("div");
+      slide.className = "swiper-slide";
+      slide.innerHTML = `<img src="${url}" alt="Imagen del coche">`;
+      imagenes.appendChild(slide);
+    });
+
+    new Swiper(".swiper-container", {
+      loop: true,
+      slidesPerView: 1,
+      spaceBetween: 10,
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev"
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error cargando coche:", err);
+    document.body.innerHTML = "<h2 style='text-align:center; color:red;'>❌ Error cargando datos</h2>";
+  }
+});
+
+// ✅ FUNCIONES GLOBALES
+
+window.mostrarFormularioContacto = function () {
+  const overlay = document.getElementById("contacto-overlay");
+  if (overlay) overlay.style.display = "flex";
+};
+
+window.ocultarFormularioContacto = function () {
+  const overlay = document.getElementById("contacto-overlay");
+  if (overlay) overlay.style.display = "none";
+};
+
+window.mostrarModalCoche = function (nombreCoche) {
+  const modal = document.getElementById("contacto-modal-coche");
+  const input = document.getElementById("coche-modal-nombre");
+  if (modal && input) {
+    modal.style.display = "flex";
+    input.value = nombreCoche;
+  }
+};
+
+window.ocultarModalCoche = function () {
+  const modal = document.getElementById("contacto-modal-coche");
+  if (modal) modal.style.display = "none";
+};
+
+// ✅ FORMULARIO MODAL DESDE FICHA
+const formCoche = document.getElementById("formulario-coche-modal");
+if (formCoche) {
+  formCoche.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        body: formData
+      });
+
+      if (res.ok) {
+        alert("✅ Consulta enviada correctamente.");
+        this.reset();
+        ocultarModalCoche();
+      } else {
+        alert("❌ Error al enviar la consulta.");
+      }
+    } catch (err) {
+      console.error("❌ Error al enviar:", err);
+      alert("❌ Error de conexión con el servidor.");
+    }
+  });
+}
+
+// ✅ FORMULARIO DEL CONTACTO GENERAL
+const formBusqueda = document.getElementById("form-contacto-header");
+if (formBusqueda) {
+  formBusqueda.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    try {
+      const res = await fetch("/api/buscocoche", {
+        method: "POST",
+        body: formData
+      });
+
+      if (res.ok) {
+        alert("✅ Tu solicitud ha sido enviada correctamente.");
+        this.reset();
+        ocultarFormularioContacto();
+      } else {
+        alert("❌ Error al enviar la solicitud.");
+      }
+    } catch (err) {
+      console.error("❌ Error al enviar:", err);
+      alert("❌ Error de conexión con el servidor.");
+    }
+  });
+}

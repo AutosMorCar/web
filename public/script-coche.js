@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const idParam = new URLSearchParams(window.location.search).get("id");
-  const id = parseInt(idParam);
+  const id = new URLSearchParams(window.location.search).get("id");
 
-  if (isNaN(id)) {
+  if (!id || id.length < 10) {
     document.body.innerHTML = "<h2 style='text-align:center; color:red;'>❌ ID inválido</h2>";
     return;
   }
@@ -11,39 +10,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     const res = await fetch("/api/coches");
     const coches = await res.json();
 
-    if (!Array.isArray(coches) || !coches.length || !coches[id]) {
+    const coche = coches.find(c => c._id === id);
+
+    if (!coche) {
       document.body.innerHTML = "<h2 style='text-align:center; color:red;'>❌ Coche no encontrado</h2>";
       return;
     }
 
-    const coche = coches[id];
+    // Título de la pestaña
     document.title = `${coche.marca} ${coche.modelo} | Carmazon`;
 
+    // Rellenar inputs ocultos para formularios
+    const nombreCoche = `${coche.marca} ${coche.modelo}`;
     const inputCoche = document.getElementById("coche-modal-nombre");
-    if (inputCoche) inputCoche.value = `${coche.marca} ${coche.modelo}`;
+    if (inputCoche) inputCoche.value = nombreCoche;
 
+    const hidden = document.getElementById("coche-hidden");
+    if (hidden) hidden.value = nombreCoche;
+
+    // Rellenar info coche
     const info = document.getElementById("info");
     info.innerHTML = `
-      <h2>${coche.marca} ${coche.modelo}</h2>
-      <p><strong>Precio:</strong> ${coche.precio?.toLocaleString?.() || "N/A"} €</p>
-      <p><strong>Año:</strong> ${coche.anio || "N/A"}</p>
-      <p><strong>Kilómetros:</strong> ${Number(coche.km)?.toLocaleString?.() || "N/A"} km</p>
-      <p><strong>Estado:</strong> ${coche.estado || "N/A"}</p>
-      ${
-        coche.caracteristicas
-          ? `<div style="margin-top:20px;"><br>${
-              (Array.isArray(coche.caracteristicas)
-                ? coche.caracteristicas
-                : coche.caracteristicas.split(","))
-                .map(car => car.trim())
-                .filter(Boolean)
-                .map(car => `<span style="display:inline-block; background:#790f0f; color:#fff; padding:5px 10px; margin:5px 5px 0 0; border-radius:5px; font-size:14px;">${car}</span>`)
-                .join("")
-            }</div>`
-          : ""
-      }
-    `;
+  <h2>${coche.marca} ${coche.modelo}</h2>
+  <p><strong>Precio:</strong> ${coche.precio?.toLocaleString?.() || "N/A"} €</p>
+  <p><strong>Año:</strong> ${coche.anio || "N/A"}</p>
+  <p><strong>Kilómetros:</strong> ${Number(coche.km || coche.kilometros)?.toLocaleString?.() || "N/A"} km</p>
+  <p><strong>Estado:</strong> ${coche.estado || "N/A"}</p>
+  ${(() => {
+    const lista = Array.isArray(coche.caracteristicas)
+      ? coche.caracteristicas
+      : (coche.caracteristicas || "").split(",");
 
+    if (!lista.length || !lista[0].trim()) return "";
+
+    return `<div style="margin-top:20px;"><br>${
+      lista
+        .map(car => car.trim())
+        .filter(Boolean)
+        .map(car => `<span style="display:inline-block; background:#790f0f; color:#fff; padding:5px 10px; margin:5px 5px 0 0; border-radius:5px; font-size:14px;">${car}</span>`)
+        .join("")
+    }</div>`;
+  })()}
+`;
+
+
+    // Galería de imágenes
     const imagenes = document.getElementById("imagenes");
     coche.imagenes.forEach(url => {
       const slide = document.createElement("div");

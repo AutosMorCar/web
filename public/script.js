@@ -39,45 +39,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       (c.anio >= anio)
     );
 
-    filtrados.forEach((coche, index) => {
-      const div = document.createElement("div");
-      div.className = "coche";
-      div.innerHTML = `
-        <img src="${coche.imagenes?.[0]}" alt="${coche.marca} ${coche.modelo}">
-        <div class="info">
-          <h3>${coche.marca} ${coche.modelo}</h3>
-          <p><strong>Año:</strong> ${coche.anio}</p>
-          <p><strong>Kilómetros:</strong> ${Number(coche.km).toLocaleString()} km</p>
-          <p><strong>Estado:</strong> ${coche.estado}</p>
-          <p class="precio">${coche.precio.toLocaleString()} €</p>
-          <a href="coche.html?id=${index}" class="ver-detalles">Ver detalles</a>
-        </div>
-      `;
+    filtrados.forEach((coche) => {
+  const div = document.createElement("div");
+  div.className = "coche";
+  div.innerHTML = `
+    <img src="${coche.imagenes?.[0]}" alt="${coche.marca} ${coche.modelo}">
+    <div class="info">
+      <h3>${coche.marca} ${coche.modelo}</h3>
+      <p><strong>Año:</strong> ${coche.anio}</p>
+      <p><strong>Kilómetros:</strong> ${Number(coche.km).toLocaleString()} km</p>
+      <p><strong>Estado:</strong> ${coche.estado}</p>
+      <p class="precio">${coche.precio.toLocaleString()} €</p>
+      <a href="coche.html?id=${coche._id}" class="ver-detalles">Ver detalles</a>
+    </div>
+  `;
 
-      if (isAdmin) {
-        const btn = document.createElement("button");
-        btn.className = "eliminar-coche";
-        btn.dataset.id = index;
-        btn.textContent = "Eliminar";
-        btn.style.cssText = "margin-top:10px;background:#a00;color:white;border:none;padding:6px 14px;border-radius:5px;font-weight:bold;cursor:pointer;";
-        btn.addEventListener("click", async () => {
-          if (!confirm("¿Seguro que quieres eliminar este coche?")) return;
-          const res = await fetch(`/api/coches/${index}`, {
-            method: "DELETE",
-            credentials: "include"
-          });
-          if (res.ok) {
-            alert("Coche eliminado ✅");
-            renderizarFiltrado();
-          } else {
-            alert("Error al eliminar ❌");
-          }
-        });
-        div.querySelector(".info").appendChild(btn);
+  if (isAdmin) {
+    const btn = document.createElement("button");
+    btn.className = "eliminar-coche";
+    btn.dataset.id = coche._id;
+    btn.textContent = "Eliminar";
+    btn.style.cssText = "margin-top:10px;background:#a00;color:white;border:none;padding:6px 14px;border-radius:5px;font-weight:bold;cursor:pointer;";
+    btn.addEventListener("click", async () => {
+      if (!confirm("¿Seguro que quieres eliminar este coche?")) return;
+      const res = await fetch(`/api/coches/${coche._id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      if (res.ok) {
+        alert("Coche eliminado ✅");
+        renderizarFiltrado();
+      } else {
+        alert("Error al eliminar ❌");
       }
-
-      contenedor.appendChild(div);
     });
+    div.querySelector(".info").appendChild(btn);
+  }
+
+  contenedor.appendChild(div);
+});
+
   }
 
   estadoInput.addEventListener("change", renderizarFiltrado);

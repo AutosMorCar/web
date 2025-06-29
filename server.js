@@ -1,26 +1,30 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 const session = require('express-session');
 const multer = require('multer');
+const mongoose = require('mongoose');
 const path = require('path');
 const nodemailer = require('nodemailer');
 
+const fs = require('fs'); // Solo por si acaso
+const Coche = require('./models/Coche');
+const { storage } = require('./cloudinary'); // ✅ Storage Cloudinary
+
+const upload = multer({ storage }); // ✅ Multer con Cloudinary
+
 const app = express();
 const PORT = 3000;
+
+// 🔗 Conexión MongoDB Atlas
+mongoose.connect('mongodb+srv://Morcar:Madrid%4018@bdmorcar.cgprqun.mongodb.net/BDMorcar?retryWrites=true&w=majority')
+  .then(() => console.log("✅ Conectado a MongoDB"))
+  .catch(err => console.error("❌ Error de conexión:", err));
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// 🔄 Intro al inicio (debe ir ANTES de express.static)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'intro.html'));
-});
-
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
 
 app.use(session({
   secret: 'carmazon-clave-supersecreta',
@@ -33,7 +37,11 @@ app.use(session({
   }
 }));
 
-const dbPath = './data/coches.json';
+// Archivos estáticos
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'intro.html'));
+});
+app.use(express.static('public'));
 
 // 🔐 LOGIN
 app.post('/api/login', (req, res) => {
@@ -44,40 +52,26 @@ app.post('/api/login', (req, res) => {
   }
   res.status(401).json({ error: 'Credenciales incorrectas' });
 });
+app.get('/api/logged', (req, res) => res.json({ admin: !!req.session.admin }));
+app.get('/api/logout', (req, res) => req.session.destroy(() => res.json({ ok: true })));
 
-app.get('/api/logged', (req, res) => {
-  res.json({ admin: !!req.session.admin });
-});
-
-app.get('/api/logout', (req, res) => {
-  req.session.destroy(() => res.json({ ok: true }));
-});
-
-// 🚗 GET coches
-app.get('/api/coches', (req, res) => {
-  const data = fs.readFileSync(dbPath);
-  res.json(JSON.parse(data));
-});
-
-// 🚗 POST nuevo coche
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => {
-    const nombreSeguro = file.originalname.replace(/\s+/g, '_');
-    cb(null, `imagenes-${Date.now()}-${nombreSeguro}`);
+// 🚗 GET coches (desde MongoDB)
+app.get('/api/coches', async (req, res) => {
+  try {
+    const coches = await Coche.find().sort({ createdAt: -1 });
+    res.json(coches);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener los coches" });
   }
 });
-const upload = multer({ storage });
 
-app.post('/api/coches', upload.array('imagenes'), (req, res) => {
-  const data = fs.readFileSync(dbPath);
-  const coches = JSON.parse(data);
-
+// 🚗 POST nuevo coche (con Cloudinary)
+app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
   const caracteristicas = req.body.caracteristicas
     ? req.body.caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
     : [];
 
-  const nuevo = {
+  const nuevoCoche = new Coche({
     marca: req.body.marca,
     modelo: req.body.modelo,
     precio: parseFloat(req.body.precio),
@@ -86,40 +80,40 @@ app.post('/api/coches', upload.array('imagenes'), (req, res) => {
     estado: req.body.estado,
     descripcion: req.body.descripcion || "",
     caracteristicas,
-    imagenes: req.files
-      .sort((a, b) => a.fieldname.localeCompare(b.fieldname))
-      .map(f => `/uploads/${f.filename}`)
-  };
+    imagenes: req.files.map(f => f.path) // Cloudinary devuelve la URL
+  });
 
-  coches.push(nuevo);
-  fs.writeFileSync(dbPath, JSON.stringify(coches, null, 2));
-  res.status(201).json({ mensaje: 'Coche guardado correctamente' });
+  try {
+    await nuevoCoche.save();
+    res.status(201).json({ mensaje: "Coche guardado correctamente con Cloudinary" });
+  } catch (err) {
+    console.error("❌ Error al guardar coche:", err);
+    res.status(500).json({ error: "No se pudo guardar el coche" });
+  }
 });
 
 // 🗑 DELETE coche
-app.delete('/api/coches/:id', (req, res) => {
+app.delete('/api/coches/:id', async (req, res) => {
   if (!req.session.admin) return res.status(403).json({ error: "Solo el admin puede eliminar" });
 
-  const id = parseInt(req.params.id);
-  const data = fs.readFileSync(dbPath);
-  const coches = JSON.parse(data);
+  try {
+    const coche = await Coche.findById(req.params.id);
+    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
 
-  if (id < 0 || id >= coches.length) return res.status(404).json({ error: "Coche no encontrado" });
+    // 🔴 Opcional: eliminar de Cloudinary si guardas public_id
+    // Por ahora solo lo eliminamos de la BD
 
-  coches[id].imagenes.forEach(pathRel => {
-    const filePath = '.' + pathRel;
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  });
-
-  coches.splice(id, 1);
-  fs.writeFileSync(dbPath, JSON.stringify(coches, null, 2));
-  res.json({ mensaje: "Coche eliminado correctamente" });
+    await coche.deleteOne();
+    res.json({ mensaje: "Coche eliminado correctamente" });
+  } catch (err) {
+    console.error("❌ Error al eliminar coche:", err);
+    res.status(500).json({ error: "No se pudo eliminar el coche" });
+  }
 });
 
-// 📩 CONTACTO DESDE FICHA DE COCHE
+// 📩 CONTACTO FICHA DE COCHE
 app.post('/api/contacto', multer().none(), async (req, res) => {
   const { nombre, email, telefono, mensaje, coche } = req.body;
-
   if (!nombre || !email || !mensaje || !coche) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
@@ -159,7 +153,6 @@ app.post('/api/contacto', multer().none(), async (req, res) => {
 // 📩 FORMULARIO DE BÚSQUEDA DE COCHE
 app.post('/api/buscocoche', multer().none(), async (req, res) => {
   const { nombre, email, telefono, mensaje } = req.body;
-
   if (!nombre || !email || !mensaje) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }

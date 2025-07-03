@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const cocheSchema = new mongoose.Schema({
   precio: { type: Number, required: true },
-  estado: { type: String, enum: ['Nuevo', 'Usado'], required: true },
+  estado: { type: String, enum: ['Como Nuevo', 'Usado', 'Averiado'], required: true },
   marca: { type: String, required: true },
   modelo: { type: String, required: true },
   anio: { type: Number, required: true },

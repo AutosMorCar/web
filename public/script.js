@@ -27,8 +27,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     marcaInput.appendChild(opt);
   });
 
-  function renderizarFiltrado() {
-    contenedor.innerHTML = "";
+  async function renderizarFiltrado() {
+  contenedor.innerHTML = "";
+  try {
+    const resCoches = await fetch("/api/coches");
+    const coches = await resCoches.json();
+
     const estado = estadoInput.value;
     const marca = marcaInput.value;
     const anio = parseInt(anioInput.value) || 0;
@@ -39,45 +43,53 @@ document.addEventListener("DOMContentLoaded", async () => {
       (c.anio >= anio)
     );
 
-    filtrados.forEach((coche) => {
-  const div = document.createElement("div");
-  div.className = "coche";
-  div.innerHTML = `
-    <img src="${coche.imagenes?.[0]}" alt="${coche.marca} ${coche.modelo}">
-    <div class="info">
-      <h3>${coche.marca} ${coche.modelo}</h3>
-      <p><strong>Año:</strong> ${coche.anio}</p>
-      <p><strong>Kilómetros:</strong> ${Number(coche.km).toLocaleString()} km</p>
-      <p><strong>Estado:</strong> ${coche.estado}</p>
-      <p class="precio">${coche.precio.toLocaleString()} €</p>
-      <a href="coche.html?id=${coche._id}" class="ver-detalles">Ver detalles</a>
-    </div>
-  `;
+    contenedor.innerHTML = "";
 
-  if (isAdmin) {
-    const btn = document.createElement("button");
-    btn.className = "eliminar-coche";
-    btn.dataset.id = coche._id;
-    btn.textContent = "Eliminar";
-    btn.style.cssText = "margin-top:10px;background:#a00;color:white;border:none;padding:6px 14px;border-radius:5px;font-weight:bold;cursor:pointer;";
-    btn.addEventListener("click", async () => {
-      if (!confirm("¿Seguro que quieres eliminar este coche?")) return;
-      const res = await fetch(`/api/coches/${coche._id}`, {
-        method: "DELETE",
-        credentials: "include"
-      });
-      if (res.ok) {
-        alert("Coche eliminado ✅");
-        renderizarFiltrado();
-      } else {
-        alert("Error al eliminar ❌");
+    filtrados.forEach((coche) => {
+      const div = document.createElement("div");
+      div.className = "coche";
+      div.innerHTML = `
+        <img src="${coche.imagenes?.[0]}" alt="${coche.marca} ${coche.modelo}">
+        <div class="info">
+          <h3>${coche.marca} ${coche.modelo}</h3>
+          <p><strong>Año:</strong> ${coche.anio}</p>
+          <p><strong>Kilómetros:</strong> ${Number(coche.km).toLocaleString()} km</p>
+          <p><strong>Estado:</strong> ${coche.estado}</p>
+          <p class="precio">${coche.precio.toLocaleString()} €</p>
+          <a href="coche.html?id=${coche._id}" class="ver-detalles">Ver detalles</a>
+        </div>
+      `;
+
+      if (isAdmin) {
+        const btn = document.createElement("button");
+        btn.className = "eliminar-coche";
+        btn.dataset.id = coche._id;
+        btn.textContent = "Eliminar";
+        btn.style.cssText = "margin-top:10px;background:#a00;color:white;border:none;padding:6px 14px;border-radius:5px;font-weight:bold;cursor:pointer;";
+        btn.addEventListener("click", async () => {
+          if (!confirm("¿Seguro que quieres eliminar este coche?")) return;
+          const res = await fetch(`/api/coches/${coche._id}`, {
+            method: "DELETE",
+            credentials: "include"
+          });
+          if (res.ok) {
+            alert("Coche eliminado ✅");
+            renderizarFiltrado();
+          } else {
+            alert("Error al eliminar ❌");
+          }
+        });
+        div.querySelector(".info").appendChild(btn);
       }
+
+      contenedor.appendChild(div);
     });
-    div.querySelector(".info").appendChild(btn);
+
+  } catch (err) {
+    console.error("❌ Error al cargar los coches:", err);
+    contenedor.innerHTML = "<p style='color:red;'>Error cargando coches.</p>";
   }
 
-  contenedor.appendChild(div);
-});
 
   }
 
@@ -190,39 +202,32 @@ if (inputImagenes) {
   }
 
   document.getElementById("form-coche").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData();
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form); // ✅ esto pilla todos los inputs bien
 
-    [...form.elements].forEach(el => {
-      if (el.name && el.type !== "file") {
-        formData.append(el.name, el.value);
-      }
-    });
-
-    fileList.forEach(file => {
-      formData.append("imagenes", file);
-    });
-
-    try {
-      const res = await fetch("/api/coches", {
-  method: "POST",
-  body: formData,
-  credentials: "include"  // 🔐 añade esto
-});
-
-
-      if (res.ok) {
-        alert("Coche subido correctamente ✅");
-        location.reload();
-      } else {
-        alert("Error al subir el coche ❌");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error al enviar coche");
-    }
+  fileList.forEach(file => {
+    formData.append("imagenes", file);
   });
+
+  try {
+    const res = await fetch("/api/coches", {
+      method: "POST",
+      body: formData,
+      credentials: "include"
+    });
+
+    if (res.ok) {
+      alert("Coche subido correctamente ✅");
+      location.reload();
+    } else {
+      alert("Error al subir el coche ❌");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error al enviar coche");
+  }
+});
 
   
 // 📩 Enviar formulario del contacto general (busco coche)

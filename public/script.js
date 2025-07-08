@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const anioInput = document.getElementById("filtro-anio");
   const resetBtn = document.getElementById("filtro-reset");
 
-  const marcasUnicas = [...new Set(coches.map(c => c.marca))];
+  const marcasUnicas = [...new Set(coches.map(c => c.marca.trim()))];
   marcasUnicas.forEach(m => {
     const opt = document.createElement("option");
     opt.value = m;
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const filtrados = coches.filter(c =>
       (estado === "" || c.estado === estado) &&
-      (marca === "" || c.marca === marca) &&
+      (marca === "" || c.marca.trim() === marca) &&
       (c.anio >= anio)
     );
 

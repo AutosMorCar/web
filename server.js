@@ -58,7 +58,7 @@ app.get('/api/logout', (req, res) => req.session.destroy(() => res.json({ ok: tr
 // 🚗 GET coches (desde MongoDB)
 app.get('/api/coches', async (req, res) => {
   try {
-    const coches = await Coche.find().sort({ createdAt: -1 });
+    const coches = await Coche.find().sort({ fechaSubida: -1 }); // <- fijado
     res.json(coches);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener los coches" });
@@ -71,16 +71,20 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
     ? req.body.caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
     : [];
 
+  // ✅ Leemos "tipo". Si por compatibilidad viene "estado", asumimos 'coche' por defecto.
+  const tipo = req.body.tipo || (req.body.estado ? 'coche' : undefined);
+
   const nuevoCoche = new Coche({
     marca: req.body.marca,
     modelo: req.body.modelo,
     precio: parseFloat(req.body.precio),
     anio: parseInt(req.body.anio),
     km: parseInt(req.body.km),
-    estado: req.body.estado,
+    tipo, // <- ahora guardamos el tipo
+    // estado: req.body.estado, // (opcional) solo si quisieras seguir guardando el viejo campo
     descripcion: req.body.descripcion || "",
     caracteristicas,
-    imagenes: req.files.map(f => f.path) // Cloudinary devuelve la URL
+    imagenes: (req.files || []).map(f => f.path) // URLs de Cloudinary
   });
 
   try {
@@ -190,4 +194,55 @@ app.post('/api/buscocoche', multer().none(), async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`✅ Servidor activo en http://localhost:${PORT}`);
+});
+
+// 🚗 GET coche por ID
+app.get('/api/coches/:id', async (req, res) => {
+  try {
+    const coche = await Coche.findById(req.params.id);
+    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
+    res.json(coche);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener el coche" });
+  }
+});
+
+// ✏️ PUT editar coche
+app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
+  if (!req.session.admin) return res.status(403).json({ error: "Solo el admin puede editar" });
+
+  try {
+    const coche = await Coche.findById(req.params.id);
+    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
+
+    // Campos editables
+    const {
+      marca, modelo, precio, anio, km, tipo, descripcion, caracteristicas
+    } = req.body;
+
+    if (marca !== undefined) coche.marca = marca;
+    if (modelo !== undefined) coche.modelo = modelo;
+    if (precio !== undefined) coche.precio = parseFloat(precio);
+    if (anio !== undefined) coche.anio = parseInt(anio);
+    if (km !== undefined) coche.km = parseInt(km);
+    if (tipo !== undefined) coche.tipo = tipo;               // <- usamos tipo
+    if (descripcion !== undefined) coche.descripcion = descripcion;
+
+    if (caracteristicas !== undefined) {
+      coche.caracteristicas = caracteristicas
+        ? caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
+        : [];
+    }
+
+    // Si en la edición subes imágenes nuevas, las añadimos
+    if (req.files && req.files.length > 0) {
+      coche.imagenes = [...coche.imagenes, ...req.files.map(f => f.path)];
+    }
+
+    await coche.save();
+    res.json({ ok: true, coche });
+  } catch (err) {
+    console.error("❌ Error al editar coche:", err);
+    res.status(500).json({ error: "No se pudo editar el coche" });
+  }
 });

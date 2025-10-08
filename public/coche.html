@@ -406,6 +406,11 @@ footer {
 <button onclick="mostrarModalCoche(document.title)" style="display: inline-block; margin-top: 10px; margin-left: 10px; padding: 12px 20px; background-color: var(--rojo-carmazon); color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; line-height: 1; cursor: pointer;">
   Contáctanos
 </button>
+<!-- SOLO ADMIN -->
+<button id="btn-editar" style="display:none; margin-top:10px; margin-left:10px; padding:12px 20px; background:#444; color:#fff; border:none; border-radius:5px; font-weight:bold; font-size:16px; cursor:pointer;">
+  ✏️ Editar anuncio
+</button>
+
 
 
     <form id="formulario-contacto">
@@ -453,6 +458,35 @@ footer {
   </div>
 </div>
 
+<div id="editar-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:1000; justify-content:center; align-items:center;">
+  <div style="background:#1a1a1a; color:#fff; width:520px; max-width:95vw; border-radius:14px; padding:22px; position:relative;">
+    <button id="editar-close" style="position:absolute; right:10px; top:10px; background:none; border:none; color:#ff4c4c; font-size:20px; cursor:pointer;">×</button>
+    <h2 style="margin:0 0 14px 0;">Editar anuncio</h2>
+    <form id="form-editar">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <input name="marca"       placeholder="Marca"       />
+        <input name="modelo"      placeholder="Modelo"      />
+        <input name="precio"      placeholder="Precio (€)"  type="number" />
+        <input name="anio"        placeholder="Año"         type="number" />
+        <input name="km"          placeholder="Kilómetros"  type="number" />
+        <select name="tipo" required>
+          <option value="">Tipo</option>
+          <option value="coche">Coche</option>
+          <option value="furgoneta">Furgoneta</option>
+        </select>
+      </div>
+      <textarea name="descripcion" placeholder="Descripción" style="width:100%; margin-top:10px; min-height:90px;"></textarea>
+      <input name="caracteristicas" placeholder="Características separadas por comas" style="width:100%; margin-top:10px;" />
+      <div style="margin-top:10px;">
+        <label>Subir imágenes nuevas (opcional): </label>
+        <input type="file" name="imagenes" id="editar-imagenes" multiple />
+      </div>
+      <button type="submit" style="margin-top:14px; background:#790f0f; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">
+        Guardar cambios
+      </button>
+    </form>
+  </div>
+</div>
 
 </body>
 </html>

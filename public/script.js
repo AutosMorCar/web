@@ -1,7 +1,5 @@
 let isAdmin = false;
 
-// 🧠 CARGAR Y MOSTRAR COCHES
-
 document.addEventListener("DOMContentLoaded", async () => {
   const contenedor = document.getElementById("resultados");
   const formWrapper = document.getElementById("form-wrapper");
@@ -14,12 +12,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const resCoches = await fetch("/api/coches");
   const coches = await resCoches.json();
 
-  const estadoInput = document.getElementById("filtro-estado");
+  // ⬇️ filtros
+  const tipoInput  = document.getElementById("filtro-tipo");   // <- era filtro-estado
   const marcaInput = document.getElementById("filtro-marca");
-  const anioInput = document.getElementById("filtro-anio");
-  const resetBtn = document.getElementById("filtro-reset");
+  const anioInput  = document.getElementById("filtro-anio");
+  const resetBtn   = document.getElementById("filtro-reset");
 
-  const marcasUnicas = [...new Set(coches.map(c => c.marca.trim()))];
+  const marcasUnicas = [...new Set(coches.map(c => (c.marca || '').trim()))];
   marcasUnicas.forEach(m => {
     const opt = document.createElement("option");
     opt.value = m;
@@ -28,76 +27,66 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   async function renderizarFiltrado() {
-  contenedor.innerHTML = "";
-  try {
-    const resCoches = await fetch("/api/coches");
-    const coches = await resCoches.json();
-
-    const estado = estadoInput.value;
-    const marca = marcaInput.value;
-    const anio = parseInt(anioInput.value) || 0;
-
-    const filtrados = coches.filter(c =>
-      (estado === "" || c.estado === estado) &&
-      (marca === "" || c.marca.trim() === marca) &&
-      (c.anio >= anio)
-    );
-
     contenedor.innerHTML = "";
+    try {
+      const resCoches = await fetch("/api/coches");
+      const coches = await resCoches.json();
 
-    filtrados.forEach((coche) => {
-      const div = document.createElement("div");
-      div.className = "coche";
-      div.innerHTML = `
-        <img src="${coche.imagenes?.[0]}" alt="${coche.marca} ${coche.modelo}">
-        <div class="info">
-          <h3>${coche.marca} ${coche.modelo}</h3>
-          <p><strong>Año:</strong> ${coche.anio}</p>
-          <p><strong>Kilómetros:</strong> ${Number(coche.km).toLocaleString()} km</p>
-          <p><strong>Estado:</strong> ${coche.estado}</p>
-          <p class="precio">${coche.precio.toLocaleString()} €</p>
-          <a href="coche.html?id=${coche._id}" class="ver-detalles">Ver detalles</a>
-        </div>
-      `;
+      const tipo  = tipoInput.value;
+      const marca = marcaInput.value;
+      const anio  = parseInt(anioInput.value) || 0;
 
-      if (isAdmin) {
-        const btn = document.createElement("button");
-        btn.className = "eliminar-coche";
-        btn.dataset.id = coche._id;
-        btn.textContent = "Eliminar";
-        btn.style.cssText = "margin-top:10px;background:#a00;color:white;border:none;padding:6px 14px;border-radius:5px;font-weight:bold;cursor:pointer;";
-        btn.addEventListener("click", async () => {
-          if (!confirm("¿Seguro que quieres eliminar este coche?")) return;
-          const res = await fetch(`/api/coches/${coche._id}`, {
-            method: "DELETE",
-            credentials: "include"
+      const filtrados = coches.filter(c =>
+        (tipo === ""  || (c.tipo && c.tipo === tipo)) &&        // <- usa tipo
+        (marca === "" || (c.marca && c.marca.trim() === marca)) &&
+        (c.anio >= anio)
+      );
+
+      contenedor.innerHTML = "";
+
+      filtrados.forEach((coche) => {
+        const div = document.createElement("div");
+        div.className = "coche";
+        div.innerHTML = `
+          <img src="${coche.imagenes?.[0] || ''}" alt="${coche.marca} ${coche.modelo}">
+          <div class="info">
+            <h3>${coche.marca} ${coche.modelo}</h3>
+            <p><strong>Año:</strong> ${coche.anio}</p>
+            <p><strong>Kilómetros:</strong> ${Number(coche.km).toLocaleString()} Km</p>
+            <p class="precio">${(coche.precio||0).toLocaleString()} €</p>
+            <a href="coche.html?id=${coche._id}" class="ver-detalles">Ver detalles</a>
+          </div>
+        `;
+
+        if (isAdmin) {
+          const btn = document.createElement("button");
+          btn.className = "eliminar-coche";
+          btn.dataset.id = coche._id;
+          btn.textContent = "Eliminar";
+          btn.style.cssText = "margin-top:10px;background:#a00;color:white;border:none;padding:6px 14px;border-radius:5px;font-weight:bold;cursor:pointer;";
+          btn.addEventListener("click", async () => {
+            if (!confirm("¿Seguro que quieres eliminar este coche?")) return;
+            const res = await fetch(`/api/coches/${coche._id}`, { method: "DELETE", credentials: "include" });
+            if (res.ok) { alert("Coche eliminado ✅"); renderizarFiltrado(); }
+            else { alert("Error al eliminar ❌"); }
           });
-          if (res.ok) {
-            alert("Coche eliminado ✅");
-            renderizarFiltrado();
-          } else {
-            alert("Error al eliminar ❌");
-          }
-        });
-        div.querySelector(".info").appendChild(btn);
-      }
+          div.querySelector(".info").appendChild(btn);
+        }
 
-      contenedor.appendChild(div);
-    });
+        contenedor.appendChild(div);
+      });
 
-  } catch (err) {
-    console.error("❌ Error al cargar los coches:", err);
-    contenedor.innerHTML = "<p style='color:red;'>Error cargando coches.</p>";
+    } catch (err) {
+      console.error("❌ Error al cargar los coches:", err);
+      contenedor.innerHTML = "<p style='color:red;'>Error cargando coches.</p>";
+    }
   }
 
-
-  }
-
-  estadoInput.addEventListener("change", renderizarFiltrado);
+  tipoInput.addEventListener("change", renderizarFiltrado);
   marcaInput.addEventListener("change", renderizarFiltrado);
   anioInput.addEventListener("input", renderizarFiltrado);
   resetBtn.addEventListener("click", () => {
-    estadoInput.value = "";
+    tipoInput.value = "";
     marcaInput.value = "";
     anioInput.value = "";
     renderizarFiltrado();
@@ -106,17 +95,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch("/api/logged", { credentials: "include" });
     const data = await res.json();
-    isAdmin = data.admin;
+    isAdmin = !!data.admin;
 
-    if (data.admin) {
-      formWrapper.style.display = "block";
+    if (isAdmin) {
+      formWrapper && (formWrapper.style.display = "block");
       loginModal.style.display = "none";
-      loginBtn.style.display = "none";
-      logoutBtn.style.display = "inline-block";
+      loginBtn && (loginBtn.style.display = "none");
+      logoutBtn && (logoutBtn.style.display = "inline-block");
     } else {
-      formWrapper.style.display = "none";
-      loginBtn.style.display = "inline-block";
-      logoutBtn.style.display = "none";
+      formWrapper && (formWrapper.style.display = "none");
+      loginBtn && (loginBtn.style.display = "inline-block");
+      logoutBtn && (logoutBtn.style.display = "none");
     }
   } catch (e) {
     console.error("Error comprobando sesión", e);
@@ -125,53 +114,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderizarFiltrado();
 });
 
+// 🔐 LOGIN
+function mostrarLogin(){ document.getElementById("login-modal").style.display="flex"; }
+function ocultarLogin(){ document.getElementById("login-modal").style.display="none"; }
 
-// 🔐 LOGIN FUNCTIONS
-function mostrarLogin() {
-  const loginModal = document.getElementById("login-modal");
-  loginModal.style.display = "flex";
-}
-
-function ocultarLogin() {
-  const loginModal = document.getElementById("login-modal");
-  loginModal.style.display = "none";
-}
-
-async function loginAdmin() {
+async function loginAdmin(){
   const usuario = document.getElementById("usuario").value;
   const password = document.getElementById("password").value;
-
   const res = await fetch("/api/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ usuario, password }),
-  credentials: "include"  // 🔐 NECESARIO para guardar la sesión
-});
-
-
-  if (res.ok) {
-    location.reload();
-  } else {
-    document.getElementById("login-error").innerText = "Usuario o contraseña incorrectos.";
-  }
+    method:"POST", headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ usuario, password }), credentials: "include"
+  });
+  if(res.ok) location.reload();
+  else document.getElementById("login-error").innerText = "Usuario o contraseña incorrectos.";
 }
+async function cerrarSesion(){ await fetch("/api/logout"); location.reload(); }
 
-async function cerrarSesion() {
-  await fetch("/api/logout");
-  location.reload();
-}
-
+// 📤 Alta coches (sin cambios salvo que el select ahora se llama "tipo")
 let fileList = [];
-
 const inputImagenes = document.getElementById("imagenes");
 const preview = document.getElementById("preview");
 
 if (inputImagenes) {
-  inputImagenes.addEventListener("change", () => {
-    fileList = Array.from(inputImagenes.files);
-    mostrarPreview();
-  });
-
+  inputImagenes.addEventListener("change", () => { fileList = Array.from(inputImagenes.files); mostrarPreview(); });
   function mostrarPreview() {
     preview.innerHTML = "";
     fileList.forEach((file, index) => {
@@ -181,13 +146,8 @@ if (inputImagenes) {
       img.style.cursor = "grab";
       img.setAttribute("draggable", true);
       img.dataset.index = index;
-
-      img.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", index);
-      });
-
+      img.addEventListener("dragstart", (e) => e.dataTransfer.setData("text/plain", index));
       img.addEventListener("dragover", (e) => e.preventDefault());
-
       img.addEventListener("drop", (e) => {
         e.preventDefault();
         const from = parseInt(e.dataTransfer.getData("text/plain"));
@@ -196,67 +156,36 @@ if (inputImagenes) {
         fileList.splice(to, 0, moved);
         mostrarPreview();
       });
-
       preview.appendChild(img);
     });
   }
 
   document.getElementById("form-coche").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form); // ✅ esto pilla todos los inputs bien
-
-  fileList.forEach(file => {
-    formData.append("imagenes", file);
-  });
-
-  try {
-    const res = await fetch("/api/coches", {
-      method: "POST",
-      body: formData,
-      credentials: "include"
-    });
-
-    if (res.ok) {
-      alert("Coche subido correctamente ✅");
-      location.reload();
-    } else {
-      alert("Error al subir el coche ❌");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error al enviar coche");
-  }
-});
-
-  
-// 📩 Enviar formulario del contacto general (busco coche)
-const formBusqueda = document.getElementById("form-contacto-header");
-if (formBusqueda) {
-  formBusqueda.addEventListener("submit", async function (e) {
     e.preventDefault();
-
-    const formData = new FormData(this);
+    const form = e.target;
+    const formData = new FormData(form);
+    fileList.forEach(file => formData.append("imagenes", file));
 
     try {
-      const res = await fetch("/api/buscocoche", {
-        method: "POST",
-        body: formData
-      });
-
-      if (res.ok) {
-        alert("✅ Tu solicitud ha sido enviada correctamente.");
-        this.reset();
-        document.getElementById("contacto-overlay").style.display = "none";
-      } else {
-        alert("❌ Error al enviar la solicitud.");
-      }
+      const res = await fetch("/api/coches", { method: "POST", body: formData, credentials: "include" });
+      if (res.ok) { alert("Coche subido correctamente ✅"); location.reload(); }
+      else { alert("Error al subir el coche ❌"); }
     } catch (err) {
-      console.error("❌ Error al enviar:", err);
-      alert("❌ Error al conectar con el servidor.");
+      console.error(err); alert("Error al enviar coche");
     }
   });
-}
 
-
+  // Formulario contacto general
+  const formBusqueda = document.getElementById("form-contacto-header");
+  if (formBusqueda) {
+    formBusqueda.addEventListener("submit", async function(e){
+      e.preventDefault();
+      const formData = new FormData(this);
+      try{
+        const res = await fetch("/api/buscocoche", { method:"POST", body: formData });
+        if(res.ok){ alert("✅ Tu solicitud ha sido enviada correctamente."); this.reset(); document.getElementById("contacto-overlay").style.display="none"; }
+        else{ alert("❌ Error al enviar la solicitud."); }
+      }catch(err){ console.error("❌ Error al enviar:", err); alert("❌ Error al conectar con el servidor."); }
+    });
+  }
 }

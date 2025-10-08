@@ -4,7 +4,7 @@ const cocheSchema = new mongoose.Schema({
   precio: { type: Number, required: true },
 
   // ✅ Nuevo: tipo de vehículo (sustituye a "estado")
-  tipo: { type: String, enum: ['coche', 'furgoneta'], required: true },
+  tipo: { type: String, enum: ['coches', 'furgonetas'], required: true },
 
   // (compatibilidad con documentos antiguos; no lo uses ya)
   estado: { type: String, enum: ['Como Nuevo', 'Usado', 'Averiado'], required: false },
@@ -19,4 +19,4 @@ const cocheSchema = new mongoose.Schema({
   fechaSubida: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Coche', cocheSchema);
+module.exports = mongoose.model('coches', cocheSchema);

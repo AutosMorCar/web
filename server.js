@@ -6,15 +6,32 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const path = require('path');
 const nodemailer = require('nodemailer');
+const fs = require('fs'); // opcional
 
-const fs = require('fs'); // Solo por si acaso
 const Coche = require('./models/coche');
-const { storage } = require('./cloudinary'); // ✅ Storage Cloudinary
+const { storage } = require('./cloudinary'); // Multer + Cloudinary
+const upload = multer({ storage });
 
-const upload = multer({ storage }); // ✅ Multer con Cloudinary
+// ✅ Cloudinary y helper al PRINCIPIO
+const { v2: cloudinary } = require('cloudinary');
+// Si usas CLOUDINARY_URL no hace falta configurar aquí.
+// cloudinary.config({ cloud_name: process.env.CLOUDINARY_CLOUD_NAME, api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET });
+
+function getPublicIdFromUrl(url) {
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split('/');
+    const i = parts.indexOf('upload');
+    if (i === -1) return null;
+    const pathAfterUpload = parts.slice(i + 1).join('/');
+    return pathAfterUpload.replace(/\.[^.]+$/, ''); // quita extensión
+  } catch {
+    return null;
+  }
+}
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // 🔗 Conexión MongoDB Atlas
 mongoose.connect('mongodb+srv://Morcar:Madrid%4018@bdmorcar.cgprqun.mongodb.net/BDMorcar?retryWrites=true&w=majority')
@@ -32,7 +49,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,
+    secure: false,            // en producción con HTTPS: true y sameSite:'none'
     maxAge: 1000 * 60 * 60 * 24
   }
 }));
@@ -55,13 +72,24 @@ app.post('/api/login', (req, res) => {
 app.get('/api/logged', (req, res) => res.json({ admin: !!req.session.admin }));
 app.get('/api/logout', (req, res) => req.session.destroy(() => res.json({ ok: true })));
 
-// 🚗 GET coches (desde MongoDB)
+// 🚗 GET todos los coches
 app.get('/api/coches', async (req, res) => {
   try {
-    const coches = await Coche.find().sort({ fechaSubida: -1 }); // <- fijado
+    const coches = await Coche.find().sort({ fechaSubida: -1 });
     res.json(coches);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener los coches" });
+  }
+});
+
+// 🚗 GET coche por ID
+app.get('/api/coches/:id', async (req, res) => {
+  try {
+    const coche = await Coche.findById(req.params.id);
+    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
+    res.json(coche);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener el coche" });
   }
 });
 
@@ -71,8 +99,8 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
     ? req.body.caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
     : [];
 
-  // ✅ Leemos "tipo". Si por compatibilidad viene "estado", asumimos 'coche' por defecto.
-  const tipo = req.body.tipo || (req.body.estado ? 'coche' : undefined);
+  // ✅ compatibilidad con "estado" pero mapeando a PLURAL (enum)
+  const tipo = req.body.tipo || (req.body.estado ? 'coches' : undefined);
 
   const nuevoCoche = new Coche({
     marca: req.body.marca,
@@ -80,11 +108,10 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
     precio: parseFloat(req.body.precio),
     anio: parseInt(req.body.anio),
     km: parseInt(req.body.km),
-    tipo, // <- ahora guardamos el tipo
-    // estado: req.body.estado, // (opcional) solo si quisieras seguir guardando el viejo campo
+    tipo, // 'coches' | 'furgonetas'
     descripcion: req.body.descripcion || "",
     caracteristicas,
-    imagenes: (req.files || []).map(f => f.path) // URLs de Cloudinary
+    imagenes: (req.files || []).map(f => f.path)
   });
 
   try {
@@ -96,7 +123,68 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
   }
 });
 
-// 🗑 DELETE coche
+// ✏️ PUT editar coche (eliminar, reordenar y añadir imágenes)
+app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
+  if (!req.session.admin) return res.status(403).json({ error: "Solo el admin puede editar" });
+
+  try {
+    const coche = await Coche.findById(req.params.id);
+    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
+
+    const { marca, modelo, precio, anio, km, tipo, descripcion, caracteristicas } = req.body;
+
+    if (marca !== undefined) coche.marca = marca;
+    if (modelo !== undefined) coche.modelo = modelo;
+    if (precio !== undefined) coche.precio = parseFloat(precio);
+    if (anio !== undefined) coche.anio = parseInt(anio);
+    if (km !== undefined) coche.km = parseInt(km);
+    if (tipo !== undefined) coche.tipo = tipo; // 'coches' | 'furgonetas'
+    if (descripcion !== undefined) coche.descripcion = descripcion;
+
+    if (caracteristicas !== undefined) {
+      coche.caracteristicas = caracteristicas
+        ? caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
+        : [];
+    }
+
+    // 1) Eliminar imágenes marcadas
+    const removeImages = Array.isArray(req.body.removeImages)
+      ? req.body.removeImages
+      : (req.body.removeImages ? [req.body.removeImages] : []);
+    for (const url of removeImages) {
+      const pid = getPublicIdFromUrl(url);
+      if (pid) {
+        try { await cloudinary.uploader.destroy(pid); }
+        catch (e) { console.warn("No se pudo borrar en Cloudinary:", e.message); }
+      }
+      coche.imagenes = coche.imagenes.filter(u => u !== url);
+    }
+
+    // 2) Reordenar (manteniendo solo las que queden)
+    const order = Array.isArray(req.body.order)
+      ? req.body.order
+      : (req.body.order ? [req.body.order] : null);
+    if (order && order.length) {
+      const actuales = new Set(coche.imagenes);
+      const ordenadas = order.filter(u => actuales.has(u));
+      const restantes = coche.imagenes.filter(u => !ordenadas.includes(u));
+      coche.imagenes = [...ordenadas, ...restantes];
+    }
+
+    // 3) Añadir nuevas
+    if (req.files && req.files.length > 0) {
+      coche.imagenes.push(...req.files.map(f => f.path));
+    }
+
+    await coche.save();
+    res.json({ ok: true, coche });
+  } catch (err) {
+    console.error("❌ Error al editar coche:", err);
+    res.status(500).json({ error: "No se pudo editar el coche" });
+  }
+});
+
+// 🗑 DELETE coche (borrando imágenes de Cloudinary)
 app.delete('/api/coches/:id', async (req, res) => {
   if (!req.session.admin) return res.status(403).json({ error: "Solo el admin puede eliminar" });
 
@@ -104,8 +192,13 @@ app.delete('/api/coches/:id', async (req, res) => {
     const coche = await Coche.findById(req.params.id);
     if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
 
-    // 🔴 Opcional: eliminar de Cloudinary si guardas public_id
-    // Por ahora solo lo eliminamos de la BD
+    for (const url of (coche.imagenes || [])) {
+      const pid = getPublicIdFromUrl(url);
+      if (pid) {
+        try { await cloudinary.uploader.destroy(pid); }
+        catch (e) { console.warn("No se pudo borrar en Cloudinary:", e.message); }
+      }
+    }
 
     await coche.deleteOne();
     res.json({ mensaje: "Coche eliminado correctamente" });
@@ -121,15 +214,10 @@ app.post('/api/contacto', multer().none(), async (req, res) => {
   if (!nombre || !email || !mensaje || !coche) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
-
   const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: {
-      user: 'carmazon14@gmail.com',
-      pass: 'tjlu mrzv lwqr zrnz'
-    }
+    auth: { user: 'carmazon14@gmail.com', pass: 'tjlu mrzv lwqr zrnz' }
   });
-
   const mailOptions = {
     from: 'carmazon14@gmail.com',
     to: 'carmazon14@gmail.com',
@@ -144,7 +232,6 @@ app.post('/api/contacto', multer().none(), async (req, res) => {
       <p>${mensaje}</p>
     `
   };
-
   try {
     await transporter.sendMail(mailOptions);
     res.status(200).json({ ok: true });
@@ -160,15 +247,10 @@ app.post('/api/buscocoche', multer().none(), async (req, res) => {
   if (!nombre || !email || !mensaje) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
   }
-
   const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: {
-      user: 'carmazon14@gmail.com',
-      pass: 'tjlu mrzv lwqr zrnz'
-    }
+    auth: { user: 'carmazon14@gmail.com', pass: 'tjlu mrzv lwqr zrnz' }
   });
-
   const mailOptions = {
     from: 'carmazon14@gmail.com',
     to: 'carmazon14@gmail.com',
@@ -182,7 +264,6 @@ app.post('/api/buscocoche', multer().none(), async (req, res) => {
       <p>${mensaje}</p>
     `
   };
-
   try {
     await transporter.sendMail(mailOptions);
     res.status(200).json({ ok: true });
@@ -192,57 +273,7 @@ app.post('/api/buscocoche', multer().none(), async (req, res) => {
   }
 });
 
+// 👂 Escuchar SIEMPRE al final
 app.listen(PORT, () => {
   console.log(`✅ Servidor activo en http://localhost:${PORT}`);
-});
-
-// 🚗 GET coche por ID
-app.get('/api/coches/:id', async (req, res) => {
-  try {
-    const coche = await Coche.findById(req.params.id);
-    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
-    res.json(coche);
-  } catch (err) {
-    res.status(500).json({ error: "Error al obtener el coche" });
-  }
-});
-
-// ✏️ PUT editar coche
-app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
-  if (!req.session.admin) return res.status(403).json({ error: "Solo el admin puede editar" });
-
-  try {
-    const coche = await Coche.findById(req.params.id);
-    if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
-
-    // Campos editables
-    const {
-      marca, modelo, precio, anio, km, tipo, descripcion, caracteristicas
-    } = req.body;
-
-    if (marca !== undefined) coche.marca = marca;
-    if (modelo !== undefined) coche.modelo = modelo;
-    if (precio !== undefined) coche.precio = parseFloat(precio);
-    if (anio !== undefined) coche.anio = parseInt(anio);
-    if (km !== undefined) coche.km = parseInt(km);
-    if (tipo !== undefined) coche.tipo = tipo;               // <- usamos tipo
-    if (descripcion !== undefined) coche.descripcion = descripcion;
-
-    if (caracteristicas !== undefined) {
-      coche.caracteristicas = caracteristicas
-        ? caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
-        : [];
-    }
-
-    // Si en la edición subes imágenes nuevas, las añadimos
-    if (req.files && req.files.length > 0) {
-      coche.imagenes = [...coche.imagenes, ...req.files.map(f => f.path)];
-    }
-
-    await coche.save();
-    res.json({ ok: true, coche });
-  } catch (err) {
-    console.error("❌ Error al editar coche:", err);
-    res.status(500).json({ error: "No se pudo editar el coche" });
-  }
 });

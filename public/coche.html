@@ -477,6 +477,12 @@ footer {
       </div>
       <textarea name="descripcion" placeholder="Descripción" style="width:100%; margin-top:10px; min-height:90px;"></textarea>
       <input name="caracteristicas" placeholder="Características separadas por comas" style="width:100%; margin-top:10px;" />
+      <!-- Galería editable (borrar y reordenar) -->
+      <div style="margin-top:10px;">
+       <label>Imágenes actuales (marca para eliminar o arrastra para reordenar):</label>
+         <div id="editar-galeria" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;"></div>
+         <small style="opacity:.8">Las marcadas se borrarán. Las no marcadas se conservan en el orden mostrado.</small>
+      </div>
       <div style="margin-top:10px;">
         <label>Subir imágenes nuevas (opcional): </label>
         <input type="file" name="imagenes" id="editar-imagenes" multiple />

@@ -13,12 +13,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const coches = await resCoches.json();
 
   // ⬇️ filtros
-  const tipoInput  = document.getElementById("filtro-tipo");   // <- era filtro-estado
-  const marcaInput = document.getElementById("filtro-marca");
-  const anioInput  = document.getElementById("filtro-anio");
-  const resetBtn   = document.getElementById("filtro-reset");
+  const tipoInput   = document.getElementById("filtro-tipo");
+  const marcaInput  = document.getElementById("filtro-marca");
+  const anioInput   = document.getElementById("filtro-anio");
+  const resetBtn    = document.getElementById("filtro-reset");
+  const buscarInput = document.getElementById("filtro-buscar"); // NUEVO
 
-  const marcasUnicas = [...new Set(coches.map(c => (c.marca || '').trim()))];
+  // Rellenar marcas únicas en el select
+  const marcasUnicas = [...new Set(coches.map(c => (c.marca || '').trim()))].filter(Boolean).sort();
   marcasUnicas.forEach(m => {
     const opt = document.createElement("option");
     opt.value = m;
@@ -26,21 +28,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     marcaInput.appendChild(opt);
   });
 
+  // Normaliza texto (quita acentos y pasa a minúsculas)
+  function norm(s) {
+    return (s || "")
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
+
   async function renderizarFiltrado() {
     contenedor.innerHTML = "";
     try {
       const resCoches = await fetch("/api/coches");
       const coches = await resCoches.json();
 
-      const tipo  = tipoInput.value;
-      const marca = marcaInput.value;
-      const anio  = parseInt(anioInput.value) || 0;
+      const tipo   = tipoInput.value;
+      const marca  = marcaInput.value;
+      const anio   = parseInt(anioInput.value) || 0;
+      const q      = norm(buscarInput ? buscarInput.value : "");
 
-      const filtrados = coches.filter(c =>
-        (tipo === ""  || (c.tipo && c.tipo === tipo)) &&        // <- usa tipo
-        (marca === "" || (c.marca && c.marca.trim() === marca)) &&
-        (c.anio >= anio)
-      );
+      const filtrados = coches.filter(c => {
+        const okTipo  = (tipo === ""  || (c.tipo && c.tipo === tipo));
+        const okMarca = (marca === "" || (c.marca && c.marca.trim() === marca));
+        const okAnio  = (c.anio >= anio);
+
+        // 🔎 Búsqueda libre (marca + modelo + descripción + características)
+        const hayBusqueda = q.length > 0;
+        let okBusqueda = true;
+        if (hayBusqueda) {
+          const campo = [
+            c.marca, 
+            c.modelo,
+            c.descripcion,
+            Array.isArray(c.caracteristicas) ? c.caracteristicas.join(" ") : (c.caracteristicas || "")
+          ].map(norm).join(" ");
+          okBusqueda = campo.includes(q);
+        }
+
+        return okTipo && okMarca && okAnio && okBusqueda;
+      });
 
       contenedor.innerHTML = "";
 
@@ -82,16 +110,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // Eventos de filtros
   tipoInput.addEventListener("change", renderizarFiltrado);
   marcaInput.addEventListener("change", renderizarFiltrado);
   anioInput.addEventListener("input", renderizarFiltrado);
+
+  // Debounce para la búsqueda (evita recalcular por cada tecla)
+  let buscarTimer;
+  if (buscarInput) {
+    buscarInput.addEventListener("input", () => {
+      clearTimeout(buscarTimer);
+      buscarTimer = setTimeout(renderizarFiltrado, 200);
+    });
+  }
+
+  // Reset (incluye limpiar la búsqueda)
   resetBtn.addEventListener("click", () => {
     tipoInput.value = "";
     marcaInput.value = "";
     anioInput.value = "";
+    if (buscarInput) buscarInput.value = "";
     renderizarFiltrado();
   });
 
+  // Estado sesión / admin
   try {
     const res = await fetch("/api/logged", { credentials: "include" });
     const data = await res.json();
@@ -130,7 +172,7 @@ async function loginAdmin(){
 }
 async function cerrarSesion(){ await fetch("/api/logout"); location.reload(); }
 
-// 📤 Alta coches (sin cambios salvo que el select ahora se llama "tipo")
+// 📤 Alta coches (drag&drop de imágenes del alta)
 let fileList = [];
 const inputImagenes = document.getElementById("imagenes");
 const preview = document.getElementById("preview");

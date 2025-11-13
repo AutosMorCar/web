@@ -61,18 +61,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     ${(() => {
       const obsArray = Array.isArray(coche.observaciones)
         ? coche.observaciones
-        : (coche.observaciones || "").split(/\r?\n|,/g);
+        : (coche.observaciones || "")
+          .split(/\r?\n/g)          // 👈 SOLO salto de línea
+          .map(o => o.trim())
+          .filter(Boolean);
 
-      const items = obsArray.map(o => o.trim()).filter(Boolean);
-      if (!items.length) return "";
+      if (!obsArray.length) return "";
 
       return `
-        <div style="margin-top:22px;">
-          <h3 style="margin:0 0 8px 0; font-size:18px;">Observaciones</h3>
-          <ul style="margin:0; padding-left:18px; line-height:1.5;">
-            ${items.map(o => `<li>${o}</li>`).join("")}
-          </ul>
-        </div>
+       <div style="margin-top:22px;">
+        <h3 style="margin:0 0 8px 0; font-size:18px;">Observaciones</h3>
+        <ul style="margin:0; padding-left:18px; line-height:1.5;">
+         ${obsArray.map(o => `<li>${o}</li>`).join("")}
+        </ul>
+      </div>
       `;
     })()}
   `;

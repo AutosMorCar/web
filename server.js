@@ -102,7 +102,7 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
   // ✅ Observaciones: admite separar por líneas o comas
   const observaciones = req.body.observaciones
     ? req.body.observaciones
-        .split(/\r?\n|,/g)
+        .split(/\r?\n/g)
         .map(s => s.trim())
         .filter(Boolean)
     : [];
@@ -163,7 +163,7 @@ app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
     if (observaciones !== undefined) {
       coche.observaciones = observaciones
         ? observaciones
-            .split(/\r?\n|,/g)
+            .split(/\r?\n/g)
             .map(s => s.trim())
             .filter(Boolean)
         : [];

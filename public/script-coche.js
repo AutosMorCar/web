@@ -33,22 +33,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   const hidden = document.getElementById("coche-hidden");
   if (hidden) hidden.value = nombreCoche;
 
-  // Info coche (sin "Tipo" porque lo quitaste)
+  // Info coche
   const info = document.getElementById("info");
   info.innerHTML = `
     <h2>${coche.marca} ${coche.modelo}</h2>
-    <p><strong>Precio:</strong> ${(coche.precio??0).toLocaleString()} €</p>
+    <p><strong>Precio:</strong> ${(coche.precio ?? 0).toLocaleString()} €</p>
     <p><strong>Año:</strong> ${coche.anio ?? "N/A"}</p>
     <p><strong>Kilómetros:</strong> ${Number(coche.km ?? coche.kilometros ?? 0).toLocaleString()} km</p>
+
     ${(() => {
-      const lista = Array.isArray(coche.caracteristicas) ? coche.caracteristicas :
-                    (coche.caracteristicas || "").split(",");
+      const lista = Array.isArray(coche.caracteristicas)
+        ? coche.caracteristicas
+        : (coche.caracteristicas || "").split(",");
       if (!lista.length || !lista[0]?.trim()) return "";
       return `<div style="margin-top:20px;"><br>${
-        lista.map(car => car.trim()).filter(Boolean)
-            .map(car => `<span style="display:inline-block; background:#790f0f; color:#fff; padding:5px 10px; margin:5px 5px 0 0; border-radius:5px; font-size:14px;">${car}</span>`)
-            .join("")
+        lista
+          .map(car => car.trim())
+          .filter(Boolean)
+          .map(
+            car =>
+              `<span style="display:inline-block; background:#790f0f; color:#fff; padding:5px 10px; margin:5px 5px 0 0; border-radius:5px; font-size:14px;">${car}</span>`
+          )
+          .join("")
       }</div>`;
+    })()}
+
+    ${(() => {
+      const obsArray = Array.isArray(coche.observaciones)
+        ? coche.observaciones
+        : (coche.observaciones || "").split(/\r?\n|,/g);
+
+      const items = obsArray.map(o => o.trim()).filter(Boolean);
+      if (!items.length) return "";
+
+      return `
+        <div style="margin-top:22px;">
+          <h3 style="margin:0 0 8px 0; font-size:18px;">Observaciones</h3>
+          <ul style="margin:0; padding-left:18px; line-height:1.5;">
+            ${items.map(o => `<li>${o}</li>`).join("")}
+          </ul>
+        </div>
+      `;
     })()}
   `;
 
@@ -61,9 +86,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     imagenesWrap.appendChild(slide);
   });
   new Swiper(".swiper-container", {
-    loop:true, slidesPerView:1, spaceBetween:10,
-    pagination:{ el:".swiper-pagination", clickable:true },
-    navigation:{ nextEl:".swiper-button-next", prevEl:".swiper-button-prev" }
+    loop: true,
+    slidesPerView: 1,
+    spaceBetween: 10,
+    pagination: { el: ".swiper-pagination", clickable: true },
+    navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
   });
 
   // ====== EDICIÓN (solo admin) ======
@@ -71,18 +98,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   const modal = document.getElementById("editar-modal");
   const formEditar = document.getElementById("form-editar");
   const editarClose = document.getElementById("editar-close");
-  const gal = document.getElementById("editar-galeria"); // NUEVO contenedor
+  const gal = document.getElementById("editar-galeria");
 
   // Dibuja la galería del modal con DnD + check de eliminar
   function renderGaleria(urls) {
     if (!gal) return;
     gal.innerHTML = "";
-    urls.forEach((url) => {
+    urls.forEach(url => {
       const item = document.createElement("div");
       item.className = "thumb";
       item.draggable = true;
       item.dataset.url = url;
-      item.style.cssText = "position:relative;width:110px;height:80px;border-radius:8px;overflow:hidden;border:1px solid #333;";
+      item.style.cssText = "position:relative;width:90px;height:70px;border-radius:6px;overflow:hidden;border:1px solid #333;flex:0 0 auto;";
+
 
       item.innerHTML = `
         <img src="${url}" style="width:100%;height:100%;object-fit:cover;">
@@ -92,11 +120,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       `;
 
       // Drag and drop
-      item.addEventListener("dragstart", (e) => {
+      item.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", url);
       });
-      item.addEventListener("dragover", (e) => e.preventDefault());
-      item.addEventListener("drop", (e) => {
+      item.addEventListener("dragover", e => e.preventDefault());
+      item.addEventListener("drop", e => {
         e.preventDefault();
         const fromUrl = e.dataTransfer.getData("text/plain");
         const toUrl = item.dataset.url;
@@ -118,36 +146,48 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Abrir modal con datos precargados + galería editable
     btnEditar.addEventListener("click", () => {
-      formEditar.marca.value  = coche.marca || "";
+      formEditar.marca.value = coche.marca || "";
       formEditar.modelo.value = coche.modelo || "";
       formEditar.precio.value = coche.precio || "";
-      formEditar.anio.value   = coche.anio || "";
-      formEditar.km.value     = coche.km || "";
-      formEditar.tipo.value   = coche.tipo || "";
+      formEditar.anio.value = coche.anio || "";
+      formEditar.km.value = coche.km || "";
+      formEditar.tipo.value = coche.tipo || "";
       formEditar.descripcion.value = coche.descripcion || "";
       formEditar.caracteristicas.value = Array.isArray(coche.caracteristicas)
         ? coche.caracteristicas.join(", ")
-        : (coche.caracteristicas || "");
-      renderGaleria([...(coche.imagenes || [])]); // 🔥 pinta miniaturas
+        : coche.caracteristicas || "";
+
+      // ✅ Observaciones al abrir el modal
+      const obsField = document.getElementById("editar-observaciones");
+      if (obsField) {
+        obsField.value = Array.isArray(coche.observaciones)
+          ? coche.observaciones.join("\n")
+          : coche.observaciones || "";
+      }
+
+      renderGaleria([...(coche.imagenes || [])]);
       modal.style.display = "flex";
     });
 
-    editarClose.addEventListener("click", () => modal.style.display = "none");
-    modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+    editarClose.addEventListener("click", () => (modal.style.display = "none"));
+    modal.addEventListener("click", e => {
+      if (e.target === modal) modal.style.display = "none";
+    });
 
     // Enviar PUT con order + removeImages + archivos nuevos
-    formEditar.addEventListener("submit", async (e) => {
+    formEditar.addEventListener("submit", async e => {
       e.preventDefault();
       const fd = new FormData(formEditar);
 
       // Construye 'order' con las URLs que permanecen (excluyendo las marcadas para eliminar)
       const marcadas = new Set(
-        Array.from(formEditar.querySelectorAll('input[name="removeImages"]:checked'))
-             .map(inp => inp.value)
+        Array.from(
+          formEditar.querySelectorAll('input[name="removeImages"]:checked')
+        ).map(inp => inp.value)
       );
       (coche.imagenes || [])
         .filter(u => !marcadas.has(u))
-        .forEach(u => fd.append('order', u));
+        .forEach(u => fd.append("order", u));
 
       try {
         const res = await fetch(`/api/coches/${id}`, {
@@ -170,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// ===== CONTACTO MODAL (igual que tenías)
+// ===== CONTACTO MODAL =====
 window.mostrarFormularioContacto = function () {
   const overlay = document.getElementById("contacto-overlay");
   if (overlay) overlay.style.display = "flex";
@@ -182,39 +222,61 @@ window.ocultarFormularioContacto = function () {
 window.mostrarModalCoche = function (nombreCoche) {
   const modal = document.getElementById("contacto-modal-coche");
   const input = document.getElementById("coche-modal-nombre");
-  if (modal && input) { modal.style.display = "flex"; input.value = nombreCoche; }
+  if (modal && input) {
+    modal.style.display = "flex";
+    input.value = nombreCoche;
+  }
 };
 window.ocultarModalCoche = function () {
   const modal = document.getElementById("contacto-modal-coche");
   if (modal) modal.style.display = "none";
 };
 
-// Formularios de contacto (igual)
+// Formularios de contacto
 const formCoche = document.getElementById("formulario-coche-modal");
 if (formCoche) {
   formCoche.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(this);
     try {
-      const res = await fetch("/api/contacto", { method: "POST", body: formData });
-      if (res.ok) { alert("✅ Consulta enviada correctamente."); this.reset(); ocultarModalCoche(); }
-      else { alert("❌ Error al enviar la consulta."); }
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        body: formData
+      });
+      if (res.ok) {
+        alert("✅ Consulta enviada correctamente.");
+        this.reset();
+        ocultarModalCoche();
+      } else {
+        alert("❌ Error al enviar la consulta.");
+      }
     } catch (err) {
-      console.error("❌ Error al enviar:", err); alert("❌ Error de conexión con el servidor.");
+      console.error("❌ Error al enviar:", err);
+      alert("❌ Error de conexión con el servidor.");
     }
   });
 }
+
 const formBusqueda = document.getElementById("form-contacto-header");
 if (formBusqueda) {
   formBusqueda.addEventListener("submit", async function (e) {
     e.preventDefault();
     const formData = new FormData(this);
     try {
-      const res = await fetch("/api/buscocoche", { method: "POST", body: formData });
-      if (res.ok) { alert("✅ Tu solicitud ha sido enviada correctamente."); this.reset(); window.ocultarFormularioContacto?.(); }
-      else { alert("❌ Error al enviar la solicitud."); }
+      const res = await fetch("/api/buscocoche", {
+        method: "POST",
+        body: formData
+      });
+      if (res.ok) {
+        alert("✅ Tu solicitud ha sido enviada correctamente.");
+        this.reset();
+        window.ocultarFormularioContacto?.();
+      } else {
+        alert("❌ Error al enviar la solicitud.");
+      }
     } catch (err) {
-      console.error("❌ Error al enviar:", err); alert("❌ Error de conexión con el servidor.");
+      console.error("❌ Error al enviar:", err);
+      alert("❌ Error de conexión con el servidor.");
     }
   });
 }

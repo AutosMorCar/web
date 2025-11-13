@@ -1,4 +1,3 @@
-<!-- 🔧 index.html COMPLETO con etiquetas rojas y extracción ampliada -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,17 +11,14 @@
     }
 
     body {
-  background: url("fondo-carmazon.jpg") no-repeat center center fixed;
-  background-size: cover;
-  background-color: #000; /* fallback por si no carga */
-  color: white;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-
-
+      background: url("fondo-carmazon.jpg") no-repeat center center fixed;
+      background-size: cover;
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
     header, footer {
       position: fixed;
@@ -33,35 +29,35 @@
     }
 
     header {
-  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
-  padding: 15px 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 999;
-  transition: transform 0.3s ease;
-}
+      background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+      padding: 15px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 999;
+      transition: transform 0.3s ease;
+    }
 
-footer {
-  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
-  color: #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  padding: 6px 20px;
-  height: 40px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
+    footer {
+      background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+      color: #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 20px;
+      height: 40px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
     nav a {
       color: white;
@@ -71,19 +67,18 @@ footer {
     }
 
     nav button {
-  margin-left: 20px;
-  background: none;
-  border: none;
-  font-weight: bold;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0;
-  line-height: 1.5;
-  display: inline;
-  vertical-align: baseline;
-}
-
+      margin-left: 20px;
+      background: none;
+      border: none;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      line-height: 1.5;
+      display: inline;
+      vertical-align: baseline;
+    }
 
     .contenedor-principal {
       display: flex;
@@ -116,6 +111,8 @@ footer {
       border-radius: 5px;
       background-color: #1c1c1c;
       color: white;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     aside button {
@@ -263,184 +260,181 @@ footer {
     }
 
     #contacto-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85);
-  z-index: 1001;
-  justify-content: center;
-  align-items: center;
-}
-
-.contacto-modal {
-  background-color: #1a1a1a;
-  padding: 30px 20px;
-  border-radius: 12px;
-  width: 350px;
-  box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  color: white;
-}
-
-.contacto-modal input,
-.contacto-modal textarea {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 14px;
-  font-size: 15px;
-  color: white;
-  font-family: inherit;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border 0.2s;
-  margin-bottom: 14px;
-}
-
-
-.contacto-modal button[type="submit"] {
-  background-color: var(--rojo-carmazon);
-  color: white;
-  padding: 12px 16px;
-  font-size: 15px;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.close-contacto {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 20px;
-  background: none;
-  border: none;
-  color: #ff4444;
-  cursor: pointer;
-}
-
-.barra-lateral {
-  position: sticky;
-  top: 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.btn-contacto-especial {
-  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  padding: 12px 16px;
-  cursor: pointer;
-  width: 100%;
-  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
-  transition: background 0.2s;
-}
-
-.btn-contacto-especial:hover {
-  background: linear-gradient(to right, #5c0b0b, #5c0b0b);
-}
-
-
-@media (max-width: 1024px) {
-    .contenedor-principal {
-      flex-direction: column;
-      padding: 120px 20px 80px 20px;
-    }
-
-    .barra-lateral {
-  width: 100%;
-  align-items: center;
-}
-
-.barra-lateral aside {
-  width: 90%;
-  max-width: 400px;
-}
-
-    aside {
-      width: 100%;
-      position: static;
-    }
-
-    .barra-lateral {
-      flex-direction: column;
-      position: static;
-    }
-
-    main {
-      width: 100%;
-    }
-
-    #resultados {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    }
-  }
-
-  @media (max-width: 600px) {
-    header, footer {
-      padding: 10px 20px;
-    }
-
-    header a {
-      font-size: 22px !important;
-    }
-
-    nav {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    nav a, nav button {
-      font-size: 14px;
-      margin: 0;
-    }
-
-    aside label,
-    aside select,
-    aside input,
-    aside button {
-      font-size: 14px;
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
     }
 
     .contacto-modal {
-      width: 90%;
+      background-color: #1a1a1a;
+      padding: 30px 20px;
+      border-radius: 12px;
+      width: 350px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      color: white;
     }
 
-    .coche img {
-      height: auto;
+    .contacto-modal input,
+    .contacto-modal textarea {
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 15px;
+      color: white;
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border 0.2s;
+      margin-bottom: 14px;
     }
 
-    .info p {
-      font-size: 14px;
+    .contacto-modal button[type="submit"] {
+      background-color: var(--rojo-carmazon);
+      color: white;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
     }
 
-    .ver-detalles {
-      font-size: 14px;
-      padding: 6px 12px;
+    .close-contacto {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: #ff4444;
+      cursor: pointer;
     }
-  }
 
+    .barra-lateral {
+      position: sticky;
+      top: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .btn-contacto-especial {
+      background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 16px;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+      transition: background 0.2s;
+    }
+
+    .btn-contacto-especial:hover {
+      background: linear-gradient(to right, #5c0b0b, #5c0b0b);
+    }
+
+    @media (max-width: 1024px) {
+      .contenedor-principal {
+        flex-direction: column;
+        padding: 120px 20px 80px 20px;
+      }
+
+      .barra-lateral {
+        width: 100%;
+        align-items: center;
+      }
+
+      .barra-lateral aside {
+        width: 90%;
+        max-width: 400px;
+      }
+
+      aside {
+        width: 100%;
+        position: static;
+      }
+
+      .barra-lateral {
+        flex-direction: column;
+        position: static;
+      }
+
+      main {
+        width: 100%;
+      }
+
+      #resultados {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      header, footer {
+        padding: 10px 20px;
+      }
+
+      header a {
+        font-size: 22px !important;
+      }
+
+      nav {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      nav a, nav button {
+        font-size: 14px;
+        margin: 0;
+      }
+
+      aside label,
+      aside select,
+      aside input,
+      aside button {
+        font-size: 14px;
+      }
+
+      .contacto-modal {
+        width: 90%;
+      }
+
+      .coche img {
+        height: auto;
+      }
+
+      .info p {
+        font-size: 14px;
+      }
+
+      .ver-detalles {
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+    }
   </style>
-    <link rel="icon" type="image/png" href="favicon.ico">
+  <link rel="icon" type="image/png" href="favicon.ico">
 </head>
 <body>
 
 <header id="main-header">
-<a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-  <span style="font-size: 36px; font-weight: bold; color: white;">MorCar</span>
-  <img src="bandera.png" alt="bandera" style="height: 34px; vertical-align: middle;">
-</a>
+  <a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+    <span style="font-size: 36px; font-weight: bold; color: white;">MorCar</span>
+    <img src="bandera.png" alt="bandera" style="height: 34px; vertical-align: middle;">
+  </a>
   <nav>
     <a href="index.html">Inicio</a>
     <button id="login-btn" onclick="mostrarLogin()">Login</button>
@@ -464,11 +458,10 @@ footer {
   <div class="barra-lateral">
     <aside>
       <h2>Filtros</h2>
-      <!-- 🔎 Buscador libre -->
-      
-      <label for="filtro-buscar">Buscador</label>
-      <input id="filtro-buscar" type="text">
-      
+
+      <label for="filtro-buscar">Buscar</label>
+      <input id="filtro-buscar" type="text" placeholder="Ej: seat leon" />
+
       <label for="filtro-tipo">Tipo</label>
       <select id="filtro-tipo">
         <option value="">Todos</option>
@@ -495,7 +488,6 @@ footer {
   </div>
 
   <main>
-
     <div id="form-wrapper" style="display:none;">
       <form id="form-coche" enctype="multipart/form-data" style="margin-bottom: 30px;">
         <h2>Subir nuevo coche</h2>
@@ -509,9 +501,16 @@ footer {
           <option value="coches">Coches</option>
           <option value="furgonetas">Furgonetas</option>
         </select><br><br>
+
         <textarea name="descripcion" id="descripcion" placeholder="Pega aquí la descripción completa..." rows="6" style="width:100%;"></textarea><br><br>
         <button type="button" onclick="extraerCaracteristicas()">Detectar características</button><br><br>
         <input type="text" name="caracteristicas" id="caracteristicas" placeholder="Ej: Aire acondicionado, Elevalunas..." style="width:100%;" /><br><br>
+
+        <!-- ✅ OBSERVACIONES NUEVAS -->
+        <label for="observaciones">Observaciones (una por línea)</label>
+        <textarea name="observaciones" id="observaciones" rows="4" style="width:100%;"
+          placeholder="Motor cambiado&#10;Transmisión revisada&#10;Golpe en aleta derecha"></textarea><br><br>
+
         <input type="file" id="imagenes" multiple required /><br><br>
         <div id="preview" style="display: flex; gap: 10px; flex-wrap: wrap;"></div><br>
         <button type="submit">Subir coche</button>
@@ -521,7 +520,6 @@ footer {
     <div id="resultados" class="coche-grid"></div>
   </main>
 </div>
-
 
 <footer id="main-footer">
   <span>&copy; 2025 MorCar. Todos los derechos reservados.</span>
@@ -555,7 +553,8 @@ footer {
       "bluetooth", "usb", "camara trasera", "asientos calefactables", "asientos en piel",
       "volante multifuncion", "cierre con mando", "llantas", "ordenador de abordo",
       "techo solar", "dos llaves", "sensores de aparcamiento", "cambio automático",
-      "manual", "automático", "gasolina", "diésel", "navegador", "radio cd", "control de velocidad", "velocidad crucero"
+      "manual", "automático", "gasolina", "diésel", "navegador", "radio cd",
+      "control de velocidad", "velocidad crucero"
     ];
 
     const encontradas = lista.filter(car => descripcion.includes(car));
@@ -573,30 +572,29 @@ footer {
   }
 
   document.getElementById("form-contacto-header").addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const form = e.target;
-  const formData = new FormData(form);
+    const form = e.target;
+    const formData = new FormData(form);
 
-  try {
-    const res = await fetch("/api/buscocoche", {
-      method: "POST",
-      body: formData
-    });
+    try {
+      const res = await fetch("/api/buscocoche", {
+        method: "POST",
+        body: formData
+      });
 
-    if (res.ok) {
-      alert("✅ Tu solicitud ha sido enviada correctamente.");
-      form.reset();
-      ocultarFormularioContacto();
-    } else {
-      alert("❌ Hubo un error al enviar la solicitud.");
+      if (res.ok) {
+        alert("✅ Tu solicitud ha sido enviada correctamente.");
+        form.reset();
+        ocultarFormularioContacto();
+      } else {
+        alert("❌ Hubo un error al enviar la solicitud.");
+      }
+    } catch (err) {
+      console.error("❌ Error de conexión:", err);
+      alert("❌ Error de conexión.");
     }
-  } catch (err) {
-    console.error("❌ Error de conexión:", err);
-    alert("❌ Error de conexión.");
-  }
-});
-
+  });
 </script>
 
 <div id="contacto-overlay">
@@ -612,7 +610,6 @@ footer {
     </form>
   </div>
 </div>
-
 
 <script src="script.js"></script>
 </body>

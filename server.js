@@ -93,10 +93,18 @@ app.get('/api/coches/:id', async (req, res) => {
   }
 });
 
-// 🚗 POST nuevo coche (con Cloudinary)
+// 🚗 POST nuevo coche (con Cloudinary) + OBSERVACIONES
 app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
   const caracteristicas = req.body.caracteristicas
     ? req.body.caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
+    : [];
+
+  // ✅ Observaciones: admite separar por líneas o comas
+  const observaciones = req.body.observaciones
+    ? req.body.observaciones
+        .split(/\r?\n|,/g)
+        .map(s => s.trim())
+        .filter(Boolean)
     : [];
 
   // ✅ compatibilidad con "estado" pero mapeando a PLURAL (enum)
@@ -111,6 +119,7 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
     tipo, // 'coches' | 'furgonetas'
     descripcion: req.body.descripcion || "",
     caracteristicas,
+    observaciones, // ← NUEVO
     imagenes: (req.files || []).map(f => f.path)
   });
 
@@ -123,7 +132,7 @@ app.post('/api/coches', upload.array('imagenes'), async (req, res) => {
   }
 });
 
-// ✏️ PUT editar coche (eliminar, reordenar y añadir imágenes)
+// ✏️ PUT editar coche (eliminar, reordenar y añadir imágenes) + OBSERVACIONES
 app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
   if (!req.session.admin) return res.status(403).json({ error: "Solo el admin puede editar" });
 
@@ -131,7 +140,10 @@ app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
     const coche = await Coche.findById(req.params.id);
     if (!coche) return res.status(404).json({ error: "Coche no encontrado" });
 
-    const { marca, modelo, precio, anio, km, tipo, descripcion, caracteristicas } = req.body;
+    const {
+      marca, modelo, precio, anio, km, tipo, descripcion,
+      caracteristicas, observaciones // ← NUEVO
+    } = req.body;
 
     if (marca !== undefined) coche.marca = marca;
     if (modelo !== undefined) coche.modelo = modelo;
@@ -144,6 +156,16 @@ app.put('/api/coches/:id', upload.array('imagenes'), async (req, res) => {
     if (caracteristicas !== undefined) {
       coche.caracteristicas = caracteristicas
         ? caracteristicas.split(",").map(c => c.trim()).filter(Boolean)
+        : [];
+    }
+
+    // ✅ Observaciones en edición
+    if (observaciones !== undefined) {
+      coche.observaciones = observaciones
+        ? observaciones
+            .split(/\r?\n|,/g)
+            .map(s => s.trim())
+            .filter(Boolean)
         : [];
     }
 

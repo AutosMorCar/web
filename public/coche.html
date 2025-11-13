@@ -12,14 +12,14 @@
     }
 
     body {
-  background: linear-gradient(to right, #111111, #2b1d1d, #790f0f);
-  background-attachment: fixed;
-  color: white;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  position: relative;
-}
+      background: linear-gradient(to right, #111111, #2b1d1d, #790f0f);
+      background-attachment: fixed;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      position: relative;
+    }
 
     header, footer {
       position: fixed;
@@ -30,35 +30,35 @@
     }
 
     header {
-  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
-  padding: 15px 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 999;
-  transition: transform 0.3s ease;
-}
+      background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+      padding: 15px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 999;
+      transition: transform 0.3s ease;
+    }
 
-footer {
-  background: linear-gradient(to right, #5c0b0b, #440808, #180303);
-  color: #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  padding: 6px 20px;
-  height: 40px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
+    footer {
+      background: linear-gradient(to right, #5c0b0b, #440808, #180303);
+      color: #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 6px 20px;
+      height: 40px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
     nav a {
       color: white;
@@ -68,19 +68,18 @@ footer {
     }
 
     nav button {
-  margin-left: 20px;
-  background: none;
-  border: none;
-  font-weight: bold;
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 0;
-  line-height: 1.5;
-  display: inline;
-  vertical-align: baseline;
-}
-
+      margin-left: 20px;
+      background: none;
+      border: none;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      line-height: 1.5;
+      display: inline;
+      vertical-align: baseline;
+    }
 
     #login-modal {
       display: none;
@@ -244,128 +243,126 @@ footer {
       }
     }
 
-#logo-marca {
-  position: absolute;
-  bottom: 50px; /* puedes ajustar esto para bajarlo más o menos */
-  right: 1px;
-  z-index: 0;
-  opacity: 0.6;
-  pointer-events: none;
-}
+    #logo-marca {
+      position: absolute;
+      bottom: 50px;
+      right: 1px;
+      z-index: 0;
+      opacity: 0.6;
+      pointer-events: none;
+    }
 
-#logo-marca img {
-  width: 1000px;
-  height: auto;
-  display: block;
-}
+    #logo-marca img {
+      width: 1000px;
+      height: auto;
+      display: block;
+    }
 
+    #contacto-modal-coche {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
 
-#contacto-modal-coche {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.85);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-}
+    #contacto-modal-coche .contacto-modal {
+      background-color: #1a1a1a;
+      padding: 35px 30px;
+      border-radius: 16px;
+      width: 400px;
+      box-shadow: 0 0 35px rgba(255, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      position: relative;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
 
-#contacto-modal-coche .contacto-modal {
-  background-color: #1a1a1a;
-  padding: 35px 30px;
-  border-radius: 16px;
-  width: 400px;
-  box-shadow: 0 0 35px rgba(255, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  position: relative;
-  color: white;
-  font-family: Arial, sans-serif;
-}
+    #contacto-modal-coche h2 {
+      font-size: 22px;
+      font-weight: bold;
+      margin: 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #333;
+    }
 
-#contacto-modal-coche h2 {
-  font-size: 22px;
-  font-weight: bold;
-  margin: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #333;
-}
+    #contacto-modal-coche input,
+    #contacto-modal-coche textarea {
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 15px;
+      color: white;
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border 0.2s;
+      margin-bottom: 14px;
+    }
 
-#contacto-modal-coche input,
-#contacto-modal-coche textarea {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 14px;
-  font-size: 15px;
-  color: white;
-  font-family: inherit;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border 0.2s;
-  margin-bottom: 14px; /* 🔥 separación entre campos */
-}
+    #contacto-modal-coche input:focus,
+    #contacto-modal-coche textarea:focus {
+      outline: none;
+      border-color: var(--rojo-carmazon);
+    }
 
-#contacto-modal-coche input:focus,
-#contacto-modal-coche textarea:focus {
-  outline: none;
-  border-color: var(--rojo-carmazon);
-}
+    #contacto-modal-coche input::placeholder,
+    #contacto-modal-coche textarea::placeholder {
+      color: #aaaaaa;
+    }
 
-#contacto-modal-coche input::placeholder,
-#contacto-modal-coche textarea::placeholder {
-  color: #aaaaaa;
-}
+    #contacto-modal-coche textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
 
-#contacto-modal-coche textarea {
-  resize: vertical;
-  min-height: 100px;
-}
+    #contacto-modal-coche button[type="submit"] {
+      background-color: var(--rojo-carmazon);
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease-in-out;
+    }
 
-#contacto-modal-coche button[type="submit"] {
-  background-color: var(--rojo-carmazon);
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.3s ease-in-out;
-}
+    #contacto-modal-coche button[type="submit"]:hover {
+      background-color: #9e1b1b;
+    }
 
-#contacto-modal-coche button[type="submit"]:hover {
-  background-color: #9e1b1b;
-}
+    .close-contacto {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: #ff4c4c;
+      cursor: pointer;
+    }
 
-.close-contacto {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  font-size: 20px;
-  background: none;
-  border: none;
-  color: #ff4c4c;
-  cursor: pointer;
-}
-
-@media (max-width: 1024px) {
-  #logo-marca {
-    display: none;
-  }
-}
-
+    @media (max-width: 1024px) {
+      #logo-marca {
+        display: none;
+      }
+    }
   </style>
-    <link rel="icon" type="image/png" href="favicon.ico">
+  <link rel="icon" type="image/png" href="favicon.ico">
 </head>
 <body>
 
 <header id="main-header">
-<a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
-  <span style="font-size: 36px; font-weight: bold; color: white;">MorCar</span>
-  <img src="bandera.png" alt="bandera" style="height: 34px; vertical-align: middle;">
-</a>
+  <a href="index.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+    <span style="font-size: 36px; font-weight: bold; color: white;">MorCar</span>
+    <img src="bandera.png" alt="bandera" style="height: 34px; vertical-align: middle;">
+  </a>
   <nav>
     <a href="index.html">Nuestros Coches</a>
     <button id="login-btn" onclick="mostrarLogin()">Login</button>
@@ -400,18 +397,17 @@ footer {
     <p><strong>Vendedor:</strong> MorCar</p>
     <p><strong>Teléfono:</strong> +34 602 49 70 73</p>
     <a href="https://wa.me/34602497073" target="_blank" style="display: inline-block; margin-top: 10px; padding: 12px 20px; background-color: green; border: none; color: white; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 16px; line-height: 1;">
-  Contactar por WhatsApp
-</a>
+      Contactar por WhatsApp
+    </a>
 
-<button onclick="mostrarModalCoche(document.title)" style="display: inline-block; margin-top: 10px; margin-left: 10px; padding: 12px 20px; background-color: var(--rojo-carmazon); color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; line-height: 1; cursor: pointer;">
-  Contáctanos
-</button>
-<!-- SOLO ADMIN -->
-<button id="btn-editar" style="display:none; margin-top:10px; margin-left:10px; padding:12px 20px; background:#444; color:#fff; border:none; border-radius:5px; font-weight:bold; font-size:16px; cursor:pointer;">
-  ✏️ Editar anuncio
-</button>
+    <button onclick="mostrarModalCoche(document.title)" style="display: inline-block; margin-top: 10px; margin-left: 10px; padding: 12px 20px; background-color: var(--rojo-carmazon); color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; line-height: 1; cursor: pointer;">
+      Contáctanos
+    </button>
 
-
+    <!-- SOLO ADMIN -->
+    <button id="btn-editar" style="display:none; margin-top:10px; margin-left:10px; padding:12px 20px; background:#444; color:#fff; border:none; border-radius:5px; font-weight:bold; font-size:16px; cursor:pointer;">
+      ✏️ Editar anuncio
+    </button>
 
     <form id="formulario-contacto">
       <input type="hidden" name="coche" id="coche-hidden" />
@@ -423,7 +419,6 @@ footer {
     </form>
   </div>
 </div>
-
 
 <footer id="main-footer">
   <span>&copy; 2025 MorCar. Todos los derechos reservados.</span>
@@ -437,7 +432,6 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="script.js"></script>
 <script src="script-coche.js"></script>
-
 
 <div id="logo-marca">
   <img src="logo-fondo.png" alt="Logo MorCar">
@@ -458,6 +452,7 @@ footer {
   </div>
 </div>
 
+<!-- MODAL EDICIÓN ADMIN -->
 <div id="editar-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:1000; justify-content:center; align-items:center;">
   <div style="background:#1a1a1a; color:#fff; width:520px; max-width:95vw; border-radius:14px; padding:22px; position:relative;">
     <button id="editar-close" style="position:absolute; right:10px; top:10px; background:none; border:none; color:#ff4c4c; font-size:20px; cursor:pointer;">×</button>
@@ -475,18 +470,40 @@ footer {
           <option value="furgonetas">Furgonetas</option>
         </select>
       </div>
+
       <textarea name="descripcion" placeholder="Descripción" style="width:100%; margin-top:10px; min-height:90px;"></textarea>
       <input name="caracteristicas" placeholder="Características separadas por comas" style="width:100%; margin-top:10px;" />
+
+      <!-- ✅ OBSERVACIONES EN EDICIÓN -->
+      <textarea name="observaciones" id="editar-observaciones"
+        placeholder="Observaciones (una por línea)"
+        style="width:100%; margin-top:10px; min-height:80px;"></textarea>
+
       <!-- Galería editable (borrar y reordenar) -->
       <div style="margin-top:10px;">
-       <label>Imágenes actuales (marca para eliminar o arrastra para reordenar):</label>
-         <div id="editar-galeria" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;"></div>
-         <small style="opacity:.8">Las marcadas se borrarán. Las no marcadas se conservan en el orden mostrado.</small>
+        <label>Imágenes actuales (marca para eliminar o arrastra para reordenar):</label>
+        <div id="editar-galeria"
+     style="
+        display:flex;
+        flex-direction: row;
+        gap:10px;
+        margin-top:8px;
+        overflow-x:auto;
+        padding-bottom:10px;
+        white-space: nowrap;
+        scrollbar-width: thin;
+        max-width: 100%;
+        ">
       </div>
+
+        <small style="opacity:.8">Las marcadas se borrarán. Las no marcadas se conservan en el orden mostrado.</small>
+      </div>
+
       <div style="margin-top:10px;">
         <label>Subir imágenes nuevas (opcional): </label>
         <input type="file" name="imagenes" id="editar-imagenes" multiple />
       </div>
+
       <button type="submit" style="margin-top:14px; background:#790f0f; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-weight:bold; cursor:pointer;">
         Guardar cambios
       </button>

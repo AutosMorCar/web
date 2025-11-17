@@ -13,14 +13,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const coches = await resCoches.json();
 
   // ⬇️ filtros
-  const tipoInput   = document.getElementById("filtro-tipo");
-  const marcaInput  = document.getElementById("filtro-marca");
-  const anioInput   = document.getElementById("filtro-anio");
-  const resetBtn    = document.getElementById("filtro-reset");
-  const buscarInput = document.getElementById("filtro-buscar"); // NUEVO
+  const tipoInput      = document.getElementById("filtro-tipo");
+  const marcaInput     = document.getElementById("filtro-marca");
+  const anioInput      = document.getElementById("filtro-anio");
+  const resetBtn       = document.getElementById("filtro-reset");
+  const buscarInput    = document.getElementById("filtro-buscar"); // búsqueda libre
+  const precioMinInput = document.getElementById("filtro-precio-min");
+  const precioMaxInput = document.getElementById("filtro-precio-max");
 
   // Rellenar marcas únicas en el select
-  const marcasUnicas = [...new Set(coches.map(c => (c.marca || '').trim()))].filter(Boolean).sort();
+  const marcasUnicas = [...new Set(coches.map(c => (c.marca || '').trim()))]
+    .filter(Boolean)
+    .sort();
   marcasUnicas.forEach(m => {
     const opt = document.createElement("option");
     opt.value = m;
@@ -49,6 +53,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       const anio   = parseInt(anioInput.value) || 0;
       const q      = norm(buscarInput ? buscarInput.value : "");
 
+      const precioMin = precioMinInput && precioMinInput.value
+        ? parseInt(precioMinInput.value, 10)
+        : 0;
+      const precioMax = precioMaxInput && precioMaxInput.value
+        ? parseInt(precioMaxInput.value, 10)
+        : Infinity;
+
       const filtrados = coches.filter(c => {
         const okTipo  = (tipo === ""  || (c.tipo && c.tipo === tipo));
         const okMarca = (marca === "" || (c.marca && c.marca.trim() === marca));
@@ -59,15 +70,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         let okBusqueda = true;
         if (hayBusqueda) {
           const campo = [
-            c.marca, 
+            c.marca,
             c.modelo,
             c.descripcion,
-            Array.isArray(c.caracteristicas) ? c.caracteristicas.join(" ") : (c.caracteristicas || "")
+            Array.isArray(c.caracteristicas)
+              ? c.caracteristicas.join(" ")
+              : (c.caracteristicas || "")
           ].map(norm).join(" ");
           okBusqueda = campo.includes(q);
         }
 
-        return okTipo && okMarca && okAnio && okBusqueda;
+        // 💶 Filtro de precios
+        const precio = Number(c.precio) || 0;
+        const okPrecioMin = precio >= precioMin;
+        const okPrecioMax = precio <= precioMax;
+
+        return okTipo && okMarca && okAnio && okBusqueda && okPrecioMin && okPrecioMax;
       });
 
       contenedor.innerHTML = "";
@@ -115,6 +133,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   marcaInput.addEventListener("change", renderizarFiltrado);
   anioInput.addEventListener("input", renderizarFiltrado);
 
+  if (precioMinInput) {
+    precioMinInput.addEventListener("input", renderizarFiltrado);
+  }
+  if (precioMaxInput) {
+    precioMaxInput.addEventListener("input", renderizarFiltrado);
+  }
+
   // Debounce para la búsqueda (evita recalcular por cada tecla)
   let buscarTimer;
   if (buscarInput) {
@@ -124,12 +149,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Reset (incluye limpiar la búsqueda)
+  // Reset (incluye limpiar la búsqueda y precios)
   resetBtn.addEventListener("click", () => {
     tipoInput.value = "";
     marcaInput.value = "";
     anioInput.value = "";
-    if (buscarInput) buscarInput.value = "";
+    if (buscarInput)    buscarInput.value = "";
+    if (precioMinInput) precioMinInput.value = "";
+    if (precioMaxInput) precioMaxInput.value = "";
     renderizarFiltrado();
   });
 

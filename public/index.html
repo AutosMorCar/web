@@ -125,6 +125,35 @@
       cursor: pointer;
     }
 
+    /* Quitar flechitas de los number en los filtros */
+aside input[type="number"]::-webkit-inner-spin-button,
+aside input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+aside input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+    /* 🔥 Rango de precio moderno */
+    .precio-rango {
+      display: flex;
+      gap: 10px;
+    }
+
+    .precio-rango .campo-precio {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .precio-rango .campo-precio span {
+      font-size: 12px;
+      color: #aaaaaa;
+      margin-bottom: 4px;
+    }
+
     main {
       flex: 1;
     }
@@ -424,6 +453,11 @@
         font-size: 14px;
         padding: 6px 12px;
       }
+
+      /* En móvil, los dos inputs de precio uno debajo de otro */
+      .precio-rango {
+        flex-direction: column;
+      }
     }
   </style>
   <link rel="icon" type="image/png" href="favicon.ico">
@@ -476,6 +510,29 @@
 
       <label for="filtro-anio">Año mínimo</label>
       <input type="number" id="filtro-anio" />
+
+      <!-- 🔥 Rango de precio moderno en una sola línea -->
+      <label for="filtro-precio-min">Precio (€)</label>
+      <div class="precio-rango">
+        <div class="campo-precio">
+          <span>Mín.</span>
+          <input
+            type="number"
+            id="filtro-precio-min"
+            placeholder="Desde"
+            min="0"
+          />
+        </div>
+        <div class="campo-precio">
+          <span>Máx.</span>
+          <input
+            type="number"
+            id="filtro-precio-max"
+            placeholder="Hasta"
+            min="0"
+          />
+        </div>
+      </div>
 
       <button id="filtro-reset">Reset</button>
     </aside>

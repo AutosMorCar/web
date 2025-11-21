@@ -125,17 +125,6 @@
       cursor: pointer;
     }
 
-    /* Quitar flechitas de los number en los filtros */
-aside input[type="number"]::-webkit-inner-spin-button,
-aside input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-aside input[type="number"] {
-  -moz-appearance: textfield; /* Firefox */
-}
-
     /* 🔥 Rango de precio moderno */
     .precio-rango {
       display: flex;
@@ -507,9 +496,6 @@ aside input[type="number"] {
       <select id="filtro-marca">
         <option value="">Todas</option>
       </select>
-
-      <label for="filtro-anio">Año mínimo</label>
-      <input type="number" id="filtro-anio" />
 
       <!-- 🔥 Rango de precio moderno en una sola línea -->
       <label for="filtro-precio-min">Precio (€)</label>

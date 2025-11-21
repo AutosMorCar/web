@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ⬇️ filtros
   const tipoInput      = document.getElementById("filtro-tipo");
   const marcaInput     = document.getElementById("filtro-marca");
-  const anioInput      = document.getElementById("filtro-anio");
   const resetBtn       = document.getElementById("filtro-reset");
   const buscarInput    = document.getElementById("filtro-buscar"); // búsqueda libre
   const precioMinInput = document.getElementById("filtro-precio-min");
@@ -50,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const tipo   = tipoInput.value;
       const marca  = marcaInput.value;
-      const anio   = parseInt(anioInput.value) || 0;
       const q      = norm(buscarInput ? buscarInput.value : "");
 
       const precioMin = precioMinInput && precioMinInput.value
@@ -63,7 +61,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const filtrados = coches.filter(c => {
         const okTipo  = (tipo === ""  || (c.tipo && c.tipo === tipo));
         const okMarca = (marca === "" || (c.marca && c.marca.trim() === marca));
-        const okAnio  = (c.anio >= anio);
 
         // 🔎 Búsqueda libre (marca + modelo + descripción + características)
         const hayBusqueda = q.length > 0;
@@ -85,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const okPrecioMin = precio >= precioMin;
         const okPrecioMax = precio <= precioMax;
 
-        return okTipo && okMarca && okAnio && okBusqueda && okPrecioMin && okPrecioMax;
+        return okTipo && okMarca && okBusqueda && okPrecioMin && okPrecioMax;
       });
 
       contenedor.innerHTML = "";
@@ -131,7 +128,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Eventos de filtros
   tipoInput.addEventListener("change", renderizarFiltrado);
   marcaInput.addEventListener("change", renderizarFiltrado);
-  anioInput.addEventListener("input", renderizarFiltrado);
 
   if (precioMinInput) {
     precioMinInput.addEventListener("input", renderizarFiltrado);
@@ -153,7 +149,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   resetBtn.addEventListener("click", () => {
     tipoInput.value = "";
     marcaInput.value = "";
-    anioInput.value = "";
     if (buscarInput)    buscarInput.value = "";
     if (precioMinInput) precioMinInput.value = "";
     if (precioMaxInput) precioMaxInput.value = "";
